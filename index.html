@@ -192,25 +192,34 @@
           <h2 id="medevac-label" class="sr-only">9-Line Medevac Request</h2>
           <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
             <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
-            <p class="text-slate-400 text-xs leading-relaxed">The 9-Line is the standard format for requesting medical evacuation (MEDEVAC). Fill each line; generate a summary to transmit. Practice so you can call it in under stress.</p>
+            <p class="text-slate-400 text-xs leading-relaxed">The 9-Line MEDEVAC is the US military / NATO standard for requesting medical evacuation (ref: TC 3-21.76, TCCC). Lines 1–5 launch the aircraft (transmit in ~25 sec); 6–9 can follow en route. Fill each line, generate your summary, then practice reading it over the radio.</p>
           </div>
           <form id="medevac-form" class="space-y-4">
-            <div><label for="line1" class="block text-xs font-medium text-slate-400 mb-1">Line 1 — Location</label><input type="text" id="line1" name="line1" placeholder="Grid / location" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
-            <div><label for="line2" class="block text-xs font-medium text-slate-400 mb-1">Line 2 — Frequency, call sign</label><input type="text" id="line2" name="line2" placeholder="Freq, call sign" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
-            <div><label for="line3" class="block text-xs font-medium text-slate-400 mb-1">Line 3 — Precedence</label><select id="line3" name="line3" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="">Select</option><option value="A">A — Urgent (2 hr)</option><option value="B">B — Urgent (2 hr)</option><option value="C">C — Priority (4 hr)</option><option value="D">D — Routine (24 hr)</option><option value="E">E — Convenience</option></select></div>
-            <div><label for="line4" class="block text-xs font-medium text-slate-400 mb-1">Line 4 — Special equipment</label><select id="line4" name="line4" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="None">None</option><option value="Hoist">Hoist</option><option value="Extraction equipment">Extraction equipment</option><option value="Ventilator">Ventilator</option></select></div>
-            <div><label for="line5" class="block text-xs font-medium text-slate-400 mb-1">Line 5 — Litter / Ambulatory</label><input type="text" id="line5" name="line5" placeholder="e.g. 2L 1A" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
-            <div><label for="line6" class="block text-xs font-medium text-slate-400 mb-1">Line 6 — Security / wound type</label><input type="text" id="line6" name="line6" placeholder="e.g. No enemy" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
-            <div><label for="line7" class="block text-xs font-medium text-slate-400 mb-1">Line 7 — Marking</label><select id="line7" name="line7" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="Panels">Panels</option><option value="Pyrotechnic">Pyrotechnic</option><option value="Smoke">Smoke</option><option value="None">None</option><option value="Other">Other</option></select></div>
-            <div><label for="line8" class="block text-xs font-medium text-slate-400 mb-1">Line 8 — Nationality & status</label><select id="line8" name="line8" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="US military">US military</option><option value="US civilian">US civilian</option><option value="Non-US military">Non-US military</option><option value="Non-US civilian">Non-US civilian</option><option value="EPW">EPW</option></select></div>
-            <div><label for="line9" class="block text-xs font-medium text-slate-400 mb-1">Line 9 — CBRN / terrain</label><input type="text" id="line9" name="line9" placeholder="NBC or terrain" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div><label for="line1" class="block text-xs font-medium text-slate-400 mb-1">Line 1 — Location of pickup site</label><input type="text" id="line1" name="line1" placeholder="8-digit grid + zone (e.g. EG 3234 5544)" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div><label for="line2" class="block text-xs font-medium text-slate-400 mb-1">Line 2 — Radio frequency, call sign, suffix</label><input type="text" id="line2" name="line2" placeholder="e.g. 3500, Trident 3" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div><label for="line3" class="block text-xs font-medium text-slate-400 mb-1">Line 3 — Number of patients by precedence</label><input type="text" id="line3" name="line3" placeholder="e.g. 2A BREAK 1C (A=Urgent 2hr, B=Urgent surg, C=Priority 4hr, D=Routine 24hr, E=Convenience)" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div><label for="line4" class="block text-xs font-medium text-slate-400 mb-1">Line 4 — Special equipment required</label><select id="line4" name="line4" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="A">A — None</option><option value="B">B — Hoist</option><option value="C">C — Extraction equipment</option><option value="D">D — Ventilator</option></select></div>
+            <div><label for="line5" class="block text-xs font-medium text-slate-400 mb-1">Line 5 — Number of patients by type</label><input type="text" id="line5" name="line5" placeholder="e.g. L2 BREAK A1 (L=Litter, A=Ambulatory)" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div><label for="line6" class="block text-xs font-medium text-slate-400 mb-1">Line 6 — Security of pickup site (N/P/E/X) or wound type</label><input type="text" id="line6" name="line6" placeholder="N=No enemy, P=Possible, E=Enemy caution, X=Enemy escort; or describe wound" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div><label for="line7" class="block text-xs font-medium text-slate-400 mb-1">Line 7 — Method of marking pickup site</label><select id="line7" name="line7" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="A">A — Panels (VS-17)</option><option value="B">B — Pyrotechnic</option><option value="C">C — Smoke</option><option value="D">D — None</option><option value="E">E — Other</option></select></div>
+            <div><label for="line8" class="block text-xs font-medium text-slate-400 mb-1">Line 8 — Patient nationality and status</label><select id="line8" name="line8" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="A">A — US Military</option><option value="B">B — US Civilian</option><option value="C">C — Non-US Military</option><option value="D">D — Non-US Civilian</option><option value="E">E — EPW</option></select></div>
+            <div><label for="line9" class="block text-xs font-medium text-slate-400 mb-1">Line 9 — CBRN (C/B/R/N) or terrain description</label><input type="text" id="line9" name="line9" placeholder="e.g. N for nuclear, or open field 50m x 50m" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
             <div class="flex gap-2">
               <button type="button" id="medevac-generate" class="flex-1 py-3 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400 focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950">Generate Summary</button>
               <button type="button" id="medevac-save" class="py-3 px-4 rounded-lg border border-orange-500 text-orange-500 text-sm font-medium hover:bg-orange-500/10">Save to cloud</button>
             </div>
           </form>
           <div id="medevac-summary" class="mt-4 p-4 rounded-lg bg-slate-900 border border-slate-700 font-mono text-xs text-slate-300 whitespace-pre-wrap hidden"></div>
+          <div id="medevac-radio-wrap" class="mt-2 hidden">
+            <p class="text-orange-500 text-xs font-semibold uppercase tracking-wider mb-1">Radio readout (phonetic)</p>
+            <p id="medevac-radio" class="p-3 rounded-lg bg-slate-800 border border-slate-600 font-mono text-xs text-slate-300 whitespace-pre-wrap"></p>
+            <p class="text-slate-500 text-xs mt-1">Read this over the radio; numbers digit-by-digit (e.g. “fife” for 5).</p>
+          </div>
           <button type="button" id="medevac-copy" class="mt-2 w-full py-2 rounded-lg border border-orange-500 text-orange-500 text-sm font-medium hover:bg-orange-500/10 hidden">Copy to clipboard</button>
+          <div class="mt-4 pt-4 border-t border-slate-700">
+            <p class="text-orange-500 font-medium text-xs mb-2">Practice scenario</p>
+            <button type="button" id="medevac-scenario" class="w-full py-2 rounded-lg border border-slate-600 text-slate-300 text-sm hover:bg-slate-800">Load random scenario</button>
+          </div>
         </section>
 
         <!-- Muay Thai streak -->
@@ -844,13 +853,60 @@
     }
 
     // ——— 9-Line Medevac ↔ user_data (medical) ———
+    const MEDEVAC_LINE4_LEGACY = { 'None': 'A', 'Hoist': 'B', 'Extraction equipment': 'C', 'Ventilator': 'D' };
+    const MEDEVAC_LINE7_LEGACY = { 'Panels': 'A', 'Pyrotechnic': 'B', 'Smoke': 'C', 'None': 'D', 'Other': 'E' };
+    const MEDEVAC_LINE8_LEGACY = { 'US military': 'A', 'US civilian': 'B', 'Non-US military': 'C', 'Non-US civilian': 'D', 'EPW': 'E' };
+    const PHONETIC_DIGITS = { '0': 'zero', '1': 'wun', '2': 'too', '3': 'tree', '4': 'fower', '5': 'fife', '6': 'six', '7': 'seven', '8': 'ait', '9': 'niner' };
+    const PHONETIC_ALPHA = { 'A': 'Alpha', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo', 'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel', 'I': 'India', 'J': 'Juliett', 'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar', 'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango', 'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'X-ray', 'Y': 'Yankee', 'Z': 'Zulu' };
+
     function getMedevacPayload() {
       const lines = [1,2,3,4,5,6,7,8,9].map(i => (document.getElementById('line' + i)?.value || '').trim());
       return { lines };
     }
     function setMedevacPayload(payload) {
       if (!payload?.lines) return;
-      payload.lines.forEach((v, i) => { const el = document.getElementById('line' + (i + 1)); if (el) el.value = v || ''; });
+      const leg4 = MEDEVAC_LINE4_LEGACY;
+      const leg7 = MEDEVAC_LINE7_LEGACY;
+      const leg8 = MEDEVAC_LINE8_LEGACY;
+      payload.lines.forEach((v, i) => {
+        const el = document.getElementById('line' + (i + 1));
+        if (!el) return;
+        let val = v || '';
+        if (i === 3 && leg4[val]) val = leg4[val];
+        if (i === 6 && leg7[val]) val = leg7[val];
+        if (i === 7 && leg8[val]) val = leg8[val];
+        el.value = val;
+      });
+    }
+
+    function toRadioPhonetic(lineText) {
+      if (!lineText) return '—';
+      const out = [];
+      const upper = lineText.toUpperCase();
+      for (let i = 0; i < upper.length; i++) {
+        const c = upper[i];
+        if (/\d/.test(c)) out.push(PHONETIC_DIGITS[c] || c);
+        else if (/[A-Z]/.test(c)) out.push(PHONETIC_ALPHA[c] || c);
+        else if (c === ' ') out.push(' ');
+        else out.push(c);
+      }
+      return out.join(' ').replace(/\s+/g, ' ').trim();
+    }
+
+    const MEDEVAC_SCENARIOS = [
+      { line1: 'EG 3234 5544', line2: '3500, Trident 3', line3: '2A BREAK 1C', line4: 'A', line5: 'L2 BREAK A1', line6: 'N', line7: 'A', line8: 'A', line9: 'Open field 50m' },
+      { line2: '3100, Viper 2', line3: '1A', line4: 'B', line5: 'L1', line6: 'P', line7: 'B', line8: 'A' },
+      { line3: '1B BREAK 2D', line4: 'C', line5: 'L3', line6: 'E', line7: 'C', line8: 'A', line9: 'N' },
+      { line1: '', line2: '', line3: '', line4: 'A', line5: '', line6: '', line7: 'A', line8: 'A', line9: '' },
+    ];
+
+    function loadMedevacScenario() {
+      const s = MEDEVAC_SCENARIOS[Math.floor(Math.random() * MEDEVAC_SCENARIOS.length)];
+      [1,2,3,4,5,6,7,8,9].forEach(i => {
+        const key = 'line' + i;
+        const el = document.getElementById(key);
+        if (el) el.value = s[key] !== undefined ? s[key] : '';
+      });
     }
 
     async function loadMedevac() {
@@ -866,7 +922,13 @@
       summary.classList.remove('hidden');
       document.getElementById('medevac-copy').classList.remove('hidden');
       document.getElementById('medevac-copy').dataset.copy = text;
+      const radioLines = lines.map((v, i) => 'Line ' + (i + 1) + ': ' + toRadioPhonetic(v || '—'));
+      const radioEl = document.getElementById('medevac-radio');
+      const radioWrap = document.getElementById('medevac-radio-wrap');
+      if (radioEl) radioEl.textContent = radioLines.join('\n');
+      if (radioWrap) radioWrap.classList.remove('hidden');
     });
+    document.getElementById('medevac-scenario').addEventListener('click', loadMedevacScenario);
 
     document.getElementById('medevac-copy').addEventListener('click', () => {
       const t = document.getElementById('medevac-copy').dataset.copy;
