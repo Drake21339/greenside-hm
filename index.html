@@ -146,41 +146,20 @@
         <!-- MARCH-PAWS -->
         <section id="tab-march" class="tab-content active" aria-labelledby="march-label">
           <h2 id="march-label" class="sr-only">MARCH-PAWS Assessment</h2>
-          <p class="text-slate-400 text-sm mb-4">Complete the tactical medical assessment checklist. Progress is saved automatically.</p>
-          <ul class="space-y-3" role="list">
-            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
-              <input type="checkbox" id="m-m" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="M" />
-              <label for="m-m" class="flex-1 text-sm"><span class="font-semibold text-orange-500">M</span> — Massive hemorrhage (tourniquet / pressure)</label>
-            </li>
-            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
-              <input type="checkbox" id="m-a" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="A" />
-              <label for="m-a" class="flex-1 text-sm"><span class="font-semibold text-orange-500">A</span> — Airway (patent / NPA / surgical)</label>
-            </li>
-            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
-              <input type="checkbox" id="m-r" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="R" />
-              <label for="m-r" class="flex-1 text-sm"><span class="font-semibold text-orange-500">R</span> — Respiration (seal / needle / chest seal)</label>
-            </li>
-            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
-              <input type="checkbox" id="m-c" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="C" />
-              <label for="m-c" class="flex-1 text-sm"><span class="font-semibold text-orange-500">C</span> — Circulation (IV / fluids / hemorrhage control)</label>
-            </li>
-            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
-              <input type="checkbox" id="m-h" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="H" />
-              <label for="m-h" class="flex-1 text-sm"><span class="font-semibold text-orange-500">H</span> — Hypothermia (prevention / wrap)</label>
-            </li>
-            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
-              <input type="checkbox" id="m-p" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="P" />
-              <label for="m-p" class="flex-1 text-sm"><span class="font-semibold text-orange-500">P</span> — Head-to-toe / Pain (assessment)</label>
-            </li>
-            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
-              <input type="checkbox" id="m-aw" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="AW" />
-              <label for="m-aw" class="flex-1 text-sm"><span class="font-semibold text-orange-500">AW</span> — Wounds (dressings / documentation)</label>
-            </li>
-            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
-              <input type="checkbox" id="m-s" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="S" />
-              <label for="m-s" class="flex-1 text-sm"><span class="font-semibold text-orange-500">S</span> — Shock (monitor / reassess)</label>
-            </li>
-          </ul>
+          <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
+            <p class="text-slate-400 text-xs leading-relaxed mb-2">MARCH-PAWS is the order you assess and treat a casualty in the field (TCCC). You always do it in this order: fix life threats first (bleeding, airway, breathing), then circulation, hypothermia, then head-to-toe, pain, wounds, shock.</p>
+            <p class="text-slate-400 text-xs leading-relaxed"><strong class="text-slate-300">How to use it:</strong> Tap <strong class="text-orange-500">Complete step</strong> on each letter. You must choose the correct action for that step to check it off. Do them in order to lock in the sequence.</p>
+          </div>
+          <ul id="march-list" class="space-y-3" role="list"></ul>
+          <div id="march-question" class="hidden fixed inset-0 z-30 flex items-center justify-center p-4 bg-slate-950/90" aria-modal="true">
+            <div class="w-full max-w-sm rounded-lg bg-slate-900 border border-slate-700 p-4">
+              <p id="march-q-title" class="text-orange-500 font-semibold text-sm mb-2"></p>
+              <p id="march-q-prompt" class="text-slate-300 text-sm mb-3"></p>
+              <div id="march-q-options" class="space-y-2"></div>
+              <p id="march-q-feedback" class="hidden mt-2 text-sm"></p>
+            </div>
+          </div>
           <div class="mt-4 p-3 rounded-lg bg-slate-900/60 border border-slate-700">
             <p class="text-xs text-slate-400">Progress</p>
             <p id="march-progress" class="text-sm font-medium text-orange-500">0/8 complete</p>
@@ -473,11 +452,11 @@
     function initDashboard(uid) {
       userId = uid;
       initTabs();
+      initMarchPaws();
       loadMarchPaws();
       loadMedevac();
       loadMuayThai();
       loadAudioList();
-      initMarchPaws();
       initMedevac();
       initMuayThai();
       initAudio();
@@ -513,6 +492,17 @@
 
     // ——— MARCH-PAWS ↔ user_data (medical) ———
     const marchIds = ['m-m','m-a','m-r','m-c','m-h','m-p','m-aw','m-s'];
+    const MARCH_STEPS = [
+      { letter: 'M', id: 'm-m', label: 'Massive hemorrhage (tourniquet / pressure)', prompt: 'What’s your first action for massive hemorrhage?', options: ['Pack wound and apply pressure', 'Tourniquet high and tight', 'Elevate the limb', 'Apply ice'], correctIndex: 1 },
+      { letter: 'A', id: 'm-a', label: 'Airway (patent / NPA / surgical)', prompt: 'Casualty has a blocked airway. What do you do?', options: ['Start an IV first', 'Insert NPA or perform surgical airway', 'Roll them on their side only', 'Give oral fluids'], correctIndex: 1 },
+      { letter: 'R', id: 'm-r', label: 'Respiration (seal / needle / chest seal)', prompt: 'Sucking chest wound. Correct action?', options: ['Leave it open to drain', 'Seal with chest seal (or occlusive dressing), needle decompress if tension', 'Only apply pressure', 'Give oxygen by mouth'], correctIndex: 1 },
+      { letter: 'C', id: 'm-c', label: 'Circulation (IV / fluids / hemorrhage control)', prompt: 'After life-threatening hemorrhage is controlled, circulation step includes:', options: ['Ignore fluids until hospital', 'IV access, fluids per protocol, reassess hemorrhage control', 'Oral fluids only', 'Tourniquet every limb'], correctIndex: 1 },
+      { letter: 'H', id: 'm-h', label: 'Hypothermia (prevention / wrap)', prompt: 'How do you address hypothermia in the field?', options: ['Cool the casualty', 'Prevent heat loss: remove wet clothes, wrap in blanket/emergency blanket', 'Give cold fluids', 'Leave as-is'], correctIndex: 1 },
+      { letter: 'P', id: 'm-p', label: 'Head-to-toe / Pain (assessment)', prompt: 'The P in MARCH-PAWS is:', options: ['Only pain medication', 'Only head-to-toe exam', 'Head-to-toe assessment and pain management', 'Pulse check only'], correctIndex: 2 },
+      { letter: 'AW', id: 'm-aw', label: 'Wounds (dressings / documentation)', prompt: 'For wounds (AW step) you:', options: ['Leave wounds undressed', 'Apply dressings and document findings', 'Only document', 'Only apply tourniquets'], correctIndex: 1 },
+      { letter: 'S', id: 'm-s', label: 'Shock (monitor / reassess)', prompt: 'Shock (S) step: you should', options: ['Ignore vital signs', 'Monitor and reassess; treat per protocol', 'Give food and water', 'Move casualty immediately'], correctIndex: 1 }
+    ];
+
     function getMarchPayload() {
       const o = {};
       marchIds.forEach((id) => { o[id] = document.getElementById(id)?.checked ?? false; });
@@ -525,7 +515,8 @@
     }
     function updateMarchProgress() {
       const n = marchIds.filter(id => document.getElementById(id)?.checked).length;
-      document.getElementById('march-progress').textContent = n + '/8 complete';
+      const el = document.getElementById('march-progress');
+      if (el) el.textContent = n + '/8 complete';
     }
 
     async function loadMarchPaws() {
@@ -539,8 +530,87 @@
       await upsertUserData('medical', content);
     }
 
+    let currentMarchStep = null;
+    function openMarchQuestion(step) {
+      currentMarchStep = step;
+      const titleEl = document.getElementById('march-q-title');
+      const promptEl = document.getElementById('march-q-prompt');
+      const optionsEl = document.getElementById('march-q-options');
+      const feedbackEl = document.getElementById('march-q-feedback');
+      if (!titleEl || !promptEl || !optionsEl || !feedbackEl) return;
+      titleEl.textContent = step.letter + ' — ' + step.label;
+      promptEl.textContent = step.prompt;
+      feedbackEl.classList.add('hidden');
+      feedbackEl.textContent = '';
+      optionsEl.innerHTML = '';
+      step.options.forEach((text, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'w-full text-left py-2 px-3 rounded-lg bg-slate-800 border border-slate-600 text-slate-200 text-sm hover:bg-slate-700 focus:ring-2 focus:ring-orange-500';
+        btn.textContent = text;
+        btn.dataset.index = String(idx);
+        optionsEl.appendChild(btn);
+      });
+      document.getElementById('march-question').classList.remove('hidden');
+    }
+
+    function closeMarchQuestion() {
+      currentMarchStep = null;
+      document.getElementById('march-question').classList.add('hidden');
+    }
+
+    function renderMarchList() {
+      const list = document.getElementById('march-list');
+      if (!list) return;
+      list.innerHTML = '';
+      MARCH_STEPS.forEach((step) => {
+        const li = document.createElement('li');
+        li.className = 'march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = step.id;
+        cb.className = 'march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 pointer-events-none';
+        cb.setAttribute('aria-label', 'Step ' + step.letter + ' complete');
+        const label = document.createElement('label');
+        label.htmlFor = step.id;
+        label.className = 'flex-1 text-sm';
+        label.innerHTML = '<span class="font-semibold text-orange-500">' + step.letter + '</span> — ' + step.label;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'shrink-0 py-1.5 px-3 rounded-lg bg-orange-500 text-slate-950 text-xs font-semibold hover:bg-orange-400 focus:ring-2 focus:ring-orange-400';
+        btn.textContent = 'Complete step';
+        btn.addEventListener('click', () => openMarchQuestion(step));
+        li.appendChild(cb);
+        li.appendChild(label);
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+    }
+
     function initMarchPaws() {
-      marchIds.forEach(id => document.getElementById(id)?.addEventListener('change', () => { updateMarchProgress(); upsertMarchPaws(); }));
+      renderMarchList();
+      const optionsEl = document.getElementById('march-q-options');
+      const feedbackEl = document.getElementById('march-q-feedback');
+      if (optionsEl) {
+        optionsEl.addEventListener('click', (e) => {
+          const btn = e.target.closest('button');
+          if (!btn || currentMarchStep == null) return;
+          const idx = parseInt(btn.dataset.index, 10);
+          if (idx === currentMarchStep.correctIndex) {
+            const check = document.getElementById(currentMarchStep.id);
+            if (check) check.checked = true;
+            updateMarchProgress();
+            upsertMarchPaws();
+            closeMarchQuestion();
+          } else {
+            feedbackEl.textContent = 'Not quite. Choose the correct action for this step.';
+            feedbackEl.classList.remove('hidden');
+            feedbackEl.classList.add('text-amber-400');
+          }
+        });
+      }
+      document.getElementById('march-question')?.addEventListener('click', (e) => { if (e.target.id === 'march-question') closeMarchQuestion(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && currentMarchStep) { closeMarchQuestion(); } });
     }
 
     // ——— 9-Line Medevac ↔ user_data (medical) ———
