@@ -128,7 +128,8 @@
       </header>
 
       <nav class="flex border-b border-slate-800 bg-slate-900/50 shrink-0 overflow-x-auto" aria-label="Sections">
-        <button type="button" class="tab-btn active flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="march">MARCH-PAWS</button>
+        <button type="button" class="tab-btn active flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="home">Home</button>
+        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="march">MARCH-PAWS</button>
         <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="medevac">9-Line</button>
         <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="muaythai">Muay Thai</button>
         <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="audio">Voice Memos</button>
@@ -136,19 +137,28 @@
       </nav>
 
       <main class="flex-1 overflow-auto px-4 py-4">
-        <!-- Dashboard intro + Term of the Day -->
-        <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
-          <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
-          <p class="text-slate-400 text-xs leading-relaxed">Your training hub: drill MARCH-PAWS, practice 9-Line, log Muay Thai, record voice memos, and look up Navy/Marine terms. Use the tabs below to jump to each section.</p>
-        </div>
-        <div id="term-of-the-day-card" class="mb-4 p-4 rounded-lg bg-slate-900/80 border border-orange-500/40">
-          <p class="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-1">Term of the Day</p>
-          <p id="totd-term" class="font-semibold text-slate-100 text-sm">—</p>
-          <p id="totd-def" class="text-slate-400 text-xs mt-1">—</p>
-        </div>
+        <!-- Home (landing) -->
+        <section id="tab-home" class="tab-content active" aria-labelledby="home-label">
+          <h2 id="home-label" class="sr-only">Home</h2>
+          <p class="text-xl font-semibold text-orange-500 mb-4">Welcome back.</p>
+          <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
+            <p class="text-slate-400 text-xs leading-relaxed">Your training hub: drill MARCH-PAWS, practice 9-Line, log Muay Thai, record voice memos, and look up Navy/Marine terms. Use the tabs above to jump to each section.</p>
+          </div>
+          <div id="term-of-the-day-card" class="mb-4 p-4 rounded-lg bg-slate-900/80 border border-orange-500/40">
+            <p class="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-1">Term of the Day</p>
+            <p id="totd-term" class="font-semibold text-slate-100 text-sm">—</p>
+            <p id="totd-def" class="text-slate-400 text-xs mt-1">—</p>
+          </div>
+          <div id="daily-deck-log-card" class="p-4 rounded-lg bg-slate-900/80 border border-slate-700">
+            <p class="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-2">Daily Deck Log</p>
+            <p id="daily-deck-log-fact" class="text-slate-300 text-sm leading-relaxed">—</p>
+            <p id="daily-deck-log-loading" class="text-slate-500 text-xs mt-2 hidden">Loading…</p>
+          </div>
+        </section>
 
         <!-- MARCH-PAWS -->
-        <section id="tab-march" class="tab-content active" aria-labelledby="march-label">
+        <section id="tab-march" class="tab-content" aria-labelledby="march-label">
           <h2 id="march-label" class="sr-only">MARCH-PAWS Assessment</h2>
           <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
             <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
@@ -484,6 +494,7 @@
       initMuayThai();
       initAudio();
       initGlossary();
+      renderDailyDeckLog();
     }
 
     function initTabs() {
@@ -688,9 +699,19 @@
       await upsertUserData('medical', content);
     }
 
+    function shuffleArray(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
     let currentMarchStep = null;
     function openMarchQuestion(step) {
-      currentMarchStep = step;
+      const displayedOptions = shuffleArray(step.options);
+      currentMarchStep = { letter: step.letter, id: step.id, label: step.label, prompt: step.prompt, options: step.options, displayedOptions };
       const titleEl = document.getElementById('march-q-title');
       const promptEl = document.getElementById('march-q-prompt');
       const optionsEl = document.getElementById('march-q-options');
@@ -701,7 +722,7 @@
       feedbackEl.classList.add('hidden');
       feedbackEl.textContent = '';
       optionsEl.innerHTML = '';
-      step.options.forEach((opt, idx) => {
+      displayedOptions.forEach((opt, idx) => {
         const label = document.createElement('label');
         label.className = 'flex items-start gap-2 py-2 px-3 rounded-lg bg-slate-800 border border-slate-600 text-slate-200 text-sm cursor-pointer hover:bg-slate-700';
         const cb = document.createElement('input');
@@ -770,7 +791,8 @@
         submitBtn.addEventListener('click', () => {
           if (currentMarchStep == null) return;
           const selected = getMarchSelectedIndices();
-          const correctIndices = currentMarchStep.options.map((o, i) => o.correct ? i : -1).filter(i => i >= 0);
+          const opts = currentMarchStep.displayedOptions || currentMarchStep.options;
+          const correctIndices = opts.map((o, i) => o.correct ? i : -1).filter(i => i >= 0);
           const selectedSet = new Set(selected);
           const correctSet = new Set(correctIndices);
           const allCorrectSelected = correctIndices.every(i => selectedSet.has(i));
@@ -1131,6 +1153,112 @@
       const defEl = document.getElementById('totd-def');
       if (termEl) termEl.textContent = totd ? totd.term : '—';
       if (defEl) defEl.textContent = totd ? totd.definition : '—';
+    }
+
+    const NAVY_FACTS = [
+      'During WWII, the Navy used “Project Habbakuk”: a plan to build aircraft carriers out of reinforced ice (pykrete) the size of small islands. A 1,000-ton prototype was built in Canada before the project was scrapped.',
+      'The Navy’s Hospital Corps is the largest and most decorated enlisted rating in the U.S. military. Corpsmen have received 22 Medals of Honor and 179 Navy Crosses.',
+      'Submarine escape: In an emergency, sailors can use the Steinke Hood or free ascent. The record escape depth is 318 feet (1945, USS Tang).',
+      'The phrase “cup of joe” may come from Navy Secretary Josephus Daniels, who in 1914 banned alcohol on ships—so the strongest drink left was coffee.',
+      'Navy SEALs’ BUD/S Hell Week includes about 4 hours of sleep total over 5 days. More than half of each class typically drops or rolls.',
+      'The Navy’s first female Hospital Corpsman (HM) was allowed to serve in the early 1970s. Today women serve in virtually every HM and FMF role.',
+      'During the Battle of Midway, U.S. codebreakers knew the Japanese plan. The victory turned the Pacific war; Admiral Nimitz said the codebreakers had “commanded the fleet.”',
+      'The F-14 Tomcat could track 24 targets and engage 6 at once with Phoenix missiles. The last U.S. F-14 flight was in 2006.',
+      'Navy corpsmen have served with the Marines in every major conflict since WWI. “Doc” is often the only medical provider at the squad or platoon level.',
+      'The Blue Angels fly with 18 inches between wingtips during formation. Pilots train for hundreds of hours before joining the team.',
+      'The USS Constitution (“Old Ironsides”) is the world’s oldest commissioned warship still afloat. She earned her nickname when cannonballs seemed to bounce off her hull.',
+      'Navy divers can work at depths of 300+ feet using mixed gas. Saturation divers have lived at pressure for weeks to support deep-sea operations.',
+      'The 9-Line MEDEVAC format was refined in Vietnam and is now the NATO standard. Getting the lines right under fire saves lives.',
+      'The Navy’s “Great White Fleet” (1907–09) was 16 battleships that sailed around the world to show American power. The voyage took 14 months.',
+      'TCCC (Tactical Combat Casualty Care) was shaped by data from Somalia and Iraq: most preventable combat deaths are from bleeding. Hence “stop the bleed” and MARCH.',
+    ];
+
+    const DECK_LOG_KEYWORDS = ['navy', 'marine', 'nurse', 'doctor', 'medic', 'ship'];
+    const NAVY_FACTS_FALLBACK = NAVY_FACTS.slice();
+
+    let deckLogBackupFacts = [];
+
+    async function loadDeckLogBackup() {
+      if (deckLogBackupFacts.length) return deckLogBackupFacts;
+      try {
+        const r = await fetch('/data/daily_deck_log_backup.json');
+        if (r.ok) {
+          const data = await r.json();
+          if (Array.isArray(data.facts) && data.facts.length) deckLogBackupFacts = data.facts;
+        }
+      } catch (_) {}
+      if (!deckLogBackupFacts.length) deckLogBackupFacts = NAVY_FACTS_FALLBACK.slice();
+      return deckLogBackupFacts;
+    }
+
+    function matchesDeckLogKeyword(text) {
+      const t = (text || '').toLowerCase();
+      return DECK_LOG_KEYWORDS.some(kw => t.includes(kw));
+    }
+
+    async function fetchWikipediaOnThisDay(month, day) {
+      const MM = String(month).padStart(2, '0');
+      const DD = String(day).padStart(2, '0');
+      const url = 'https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/events/' + MM + '/' + DD;
+      const r = await fetch(url, { headers: { 'Api-User-Agent': 'GreensideHM/1.0 (training dashboard)' } });
+      if (!r.ok) return [];
+      const data = await r.json();
+      const events = data.events || [];
+      const texts = events.map(e => (e.text || '') + ' (' + (e.year || '') + ')').filter(Boolean);
+      return texts;
+    }
+
+    /** Next backup fact in order: index = number of times this user has already used a backup fact. */
+    async function getNextBackupFactIndex() {
+      const { count, error } = await supabase.from('daily_facts').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('source', 'backup');
+      if (error) return 0;
+      return count ?? 0;
+    }
+
+    async function getOrCreateDailyFact() {
+      if (!userId) return { text: null, source: 'backup' };
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: existing } = await supabase.from('daily_facts').select('fact_text, source').eq('user_id', userId).eq('fact_date', today).maybeSingle();
+      if (existing) return { text: existing.fact_text, source: existing.source };
+
+      let chosen = null;
+      let source = 'backup';
+      try {
+        const now = new Date();
+        const events = await fetchWikipediaOnThisDay(now.getMonth() + 1, now.getDate());
+        const matching = events.filter(matchesDeckLogKeyword);
+        if (matching.length) {
+          const daySeed = now.getDate() + (now.getMonth() + 1) * 31;
+          chosen = matching[daySeed % matching.length];
+          source = 'wikipedia';
+        }
+      } catch (_) {}
+
+      if (!chosen) {
+        const backup = await loadDeckLogBackup();
+        if (backup.length) {
+          const nextIndex = await getNextBackupFactIndex();
+          chosen = backup[nextIndex % backup.length];
+        }
+      }
+      const factText = chosen || 'No fact available for today.';
+      await supabase.from('daily_facts').upsert({ user_id: userId, fact_date: today, fact_text: factText, source }, { onConflict: 'user_id,fact_date' });
+      return { text: factText, source };
+    }
+
+    async function renderDailyDeckLog() {
+      const factEl = document.getElementById('daily-deck-log-fact');
+      const loadingEl = document.getElementById('daily-deck-log-loading');
+      if (loadingEl) loadingEl.classList.remove('hidden');
+      if (factEl) factEl.textContent = '—';
+      try {
+        const { text, source } = await getOrCreateDailyFact();
+        if (factEl) factEl.textContent = text || '—';
+        if (factEl && source) factEl.setAttribute('title', 'Source: ' + source);
+      } catch (_) {
+        if (factEl) factEl.textContent = 'Could not load today\'s fact.';
+      }
+      if (loadingEl) loadingEl.classList.add('hidden');
     }
 
     let glossaryCategory = 'all';
