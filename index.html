@@ -225,7 +225,7 @@
         <!-- Voice memos (audio) -->
         <section id="tab-audio" class="tab-content" aria-labelledby="audio-label">
           <h2 id="audio-label" class="sr-only">Voice memos</h2>
-          <p class="text-slate-400 text-sm mb-4">Record medical mnemonics or singing; stored in the cloud and available on any device.</p>
+          <p class="text-slate-400 text-sm mb-4">Record medical mnemonics or singing; stored in the cloud and available on any device. Tap Download to save; on iPhone you can then open in Files and Share → Add to Voice Memos.</p>
           <div class="flex gap-2 mb-4">
             <button type="button" id="audio-record" class="flex-1 py-3 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400">Record</button>
             <button type="button" id="audio-stop" class="flex-1 py-3 rounded-lg border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-800 disabled:opacity-50" disabled>Stop</button>
@@ -621,10 +621,86 @@
       audioList.innerHTML = '';
       urls.forEach((item, i) => {
         const li = document.createElement('li');
-        li.className = 'flex items-center gap-2 p-3 rounded-lg bg-slate-900/80 border border-slate-800';
-        const name = (item && item.name) ? item.name : ('Recording ' + (i + 1));
+        li.className = 'rounded-lg bg-slate-900/80 border border-slate-800 p-3';
+        const fileName = (item && item.name) ? item.name : ('memo_' + i + '.webm');
+        const displayName = (item && item.displayName) ? item.displayName : (item && item.name) ? item.name : ('Recording ' + (i + 1));
         const url = item?.url || item;
-        li.innerHTML = '<audio controls class="flex-1 max-w-full h-8" src="' + escapeAttr(url) + '"></audio><span class="text-slate-400 text-xs truncate">' + escapeHtml(name) + '</span>';
+        li.innerHTML =
+          '<div class="flex items-center gap-2 flex-wrap">' +
+            '<audio controls class="flex-1 min-w-0 max-w-full h-8" src="' + escapeAttr(url) + '"></audio>' +
+            '<button type="button" class="audio-download shrink-0 px-2 py-1.5 rounded-lg border border-orange-500 text-orange-500 text-xs font-medium hover:bg-orange-500/10">Download</button>' +
+            '<button type="button" class="audio-rename shrink-0 px-2 py-1.5 rounded-lg border border-slate-600 text-slate-400 text-xs hover:bg-slate-800">Rename</button>' +
+            '<button type="button" class="audio-delete shrink-0 px-2 py-1.5 rounded-lg border border-red-500/70 text-red-400 text-xs hover:bg-red-500/10">Delete</button>' +
+          '</div>' +
+          '<p class="audio-label text-slate-500 text-xs mt-1 truncate">' + escapeHtml(displayName) + '</p>' +
+          '<input type="text" class="audio-name-edit hidden w-full mt-1 px-2 py-1 rounded bg-slate-800 border border-slate-600 text-slate-100 text-xs" placeholder="Name this recording" maxlength="80" />';
+        li.querySelector('.audio-download').addEventListener('click', function() {
+          const n = fileName;
+          fetch(url, { mode: 'cors' }).then(r => r.blob()).then(blob => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = n;
+            a.click();
+            URL.revokeObjectURL(a.href);
+          }).catch(() => { window.open(url, '_blank'); });
+        });
+        const labelEl = li.querySelector('.audio-label');
+        const inputEl = li.querySelector('.audio-name-edit');
+        li.querySelector('.audio-rename').addEventListener('click', function() {
+          labelEl.classList.add('hidden');
+          inputEl.classList.remove('hidden');
+          inputEl.value = displayName.replace(/\.webm$/i, '');
+          inputEl.focus();
+          inputEl.onkeydown = function(e) {
+            if (e.key === 'Enter') saveRename();
+            if (e.key === 'Escape') { inputEl.classList.add('hidden'); labelEl.classList.remove('hidden'); inputEl.onblur = null; inputEl.onkeydown = null; }
+          };
+          inputEl.onblur = saveRename;
+          async function saveRename() {
+            const raw = (inputEl.value || '').trim() || displayName.replace(/\.webm$/i, '');
+            inputEl.classList.add('hidden');
+            labelEl.classList.remove('hidden');
+            labelEl.textContent = raw;
+            inputEl.onblur = null;
+            inputEl.onkeydown = null;
+            if (!raw) return;
+            const safe = raw.replace(/[^a-zA-Z0-9_\-\.]/g, '_').slice(0, 60) || 'recording';
+            const newFileName = safe.replace(/\.webm$/i, '') + '.webm';
+            const oldPath = userId + '/' + fileName;
+            const newPath = userId + '/' + newFileName;
+            setSyncState('syncing', 'Syncing…');
+            let newUrl = url;
+            if (oldPath !== newPath) {
+              const moveResult = await supabase.storage.from('jocelyn-audio').move(oldPath, newPath);
+              if (moveResult.error) {
+                setSyncState('idle', 'Rename failed');
+                labelEl.textContent = displayName;
+                return;
+              }
+              const urlData = supabase.storage.from('jocelyn-audio').getPublicUrl(newPath);
+              newUrl = urlData.data?.publicUrl || newUrl;
+            }
+            const content = await getUserData('vocal');
+            const updated = (content.audio_urls || []).slice();
+            const entry = updated[i] && typeof updated[i] === 'object' ? { ...updated[i] } : { url: url, name: fileName, created_at: (urls[i] && urls[i].created_at) || new Date().toISOString() };
+            entry.url = newUrl;
+            entry.name = newFileName;
+            entry.displayName = raw;
+            updated[i] = entry;
+            await upsertUserData('vocal', { ...content, audio_urls: updated });
+            loadAudioList();
+          }
+        });
+        li.querySelector('.audio-delete').addEventListener('click', async function() {
+          if (!confirm('Delete this recording? It will be removed from the cloud and all devices.')) return;
+          setSyncState('syncing', 'Syncing…');
+          const path = userId + '/' + fileName;
+          await supabase.storage.from('jocelyn-audio').remove([path]);
+          const updated = urls.filter((_, idx) => idx !== i);
+          const content = await getUserData('vocal');
+          await upsertUserData('vocal', { ...content, audio_urls: updated });
+          loadAudioList();
+        });
         audioList.appendChild(li);
       });
     }

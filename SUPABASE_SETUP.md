@@ -7,11 +7,22 @@ Follow these steps so the app has durable, synced storage for the full contract.
 - Go to [supabase.com](https://supabase.com) and create a project.
 - In **Project Settings → API**, copy the **Project URL** and **anon public** key.
 
-## 2. Configure the app
+## 2. Configure the app (no keys in the repo)
 
-- Open `supabase/config.js`.
-- Set `window.SUPABASE_URL` to your Project URL.
-- Set `window.SUPABASE_ANON_KEY` to your anon key.
+**Local development**
+
+- Copy `supabase/config.example.js` to `supabase/config.js`.
+- Edit `supabase/config.js` and set your Project URL and anon key.
+- `supabase/config.js` is gitignored — never commit it.
+
+**Production (Vercel / Netlify)**
+
+- Do **not** commit real keys. The app gets them from **environment variables** at build time.
+- In your host’s dashboard, add:
+  - `SUPABASE_URL` = your Supabase Project URL
+  - `SUPABASE_ANON_KEY` = your Supabase anon (public) key
+- Set the **build command** to: `npm run build`
+- The build runs `scripts/inject-config.js`, which generates `supabase/config.js` from those env vars. The deployed site uses that file.
 
 ## 3. Run the database migration
 
