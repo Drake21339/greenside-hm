@@ -503,15 +503,26 @@
       { letter: 'S', id: 'm-s', label: 'Shock', prompt: 'Shock (S) step: you should', options: ['Ignore vital signs', 'Monitor and reassess; treat per protocol', 'Give food and water', 'Move casualty immediately'], correctIndex: 1 }
     ];
 
+    function marchToday() {
+      return new Date().toISOString().slice(0, 10);
+    }
     function getMarchPayload() {
-      const o = {};
+      const o = { date: marchToday() };
       marchIds.forEach((id) => { o[id] = document.getElementById(id)?.checked ?? false; });
       return o;
     }
+    /** @returns {boolean} true if we reset because it was a new day */
     function setMarchPayload(payload) {
-      if (!payload) return;
-      marchIds.forEach(id => { const el = document.getElementById(id); if (el) el.checked = !!payload[id]; });
+      const today = marchToday();
+      const savedDate = payload?.date;
+      const isNewDay = !savedDate || savedDate !== today;
+      if (isNewDay) {
+        marchIds.forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
+      } else {
+        marchIds.forEach(id => { const el = document.getElementById(id); if (el) el.checked = !!payload[id]; });
+      }
       updateMarchProgress();
+      return isNewDay;
     }
     function updateMarchProgress() {
       const n = marchIds.filter(id => document.getElementById(id)?.checked).length;
@@ -521,7 +532,11 @@
 
     async function loadMarchPaws() {
       const content = await getUserData('medical');
-      setMarchPayload(content.march_paws);
+      const reset = setMarchPayload(content.march_paws);
+      if (reset) {
+        content.march_paws = getMarchPayload();
+        await upsertUserData('medical', content);
+      }
     }
 
     async function upsertMarchPaws() {
