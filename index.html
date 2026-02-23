@@ -153,16 +153,21 @@
           </div>
           <ul id="march-list" class="space-y-3" role="list"></ul>
           <div id="march-question" class="hidden fixed inset-0 z-30 flex items-center justify-center p-4 bg-slate-950/90" aria-modal="true">
-            <div class="w-full max-w-sm rounded-lg bg-slate-900 border border-slate-700 p-4">
+            <div class="w-full max-w-sm max-h-[90vh] flex flex-col rounded-lg bg-slate-900 border border-slate-700 p-4">
               <p id="march-q-title" class="text-orange-500 font-semibold text-sm mb-2"></p>
-              <p id="march-q-prompt" class="text-slate-300 text-sm mb-3"></p>
-              <div id="march-q-options" class="space-y-2"></div>
-              <p id="march-q-feedback" class="hidden mt-2 text-sm"></p>
+              <p id="march-q-prompt" class="text-slate-300 text-sm mb-1"></p>
+              <p class="text-slate-500 text-xs mb-2">Select all that apply.</p>
+              <div id="march-q-options" class="space-y-2 overflow-y-auto flex-1 min-h-0 mb-3"></div>
+              <p id="march-q-feedback" class="hidden mt-2 text-sm mb-2"></p>
+              <button type="button" id="march-q-submit" class="w-full py-2.5 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400 focus:ring-2 focus:ring-orange-400">Check</button>
             </div>
           </div>
-          <div class="mt-4 p-3 rounded-lg bg-slate-900/60 border border-slate-700">
-            <p class="text-xs text-slate-400">Progress</p>
-            <p id="march-progress" class="text-sm font-medium text-orange-500">0/8 complete</p>
+          <div class="mt-4 p-3 rounded-lg bg-slate-900/60 border border-slate-700 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p class="text-xs text-slate-400">Progress</p>
+              <p id="march-progress" class="text-sm font-medium text-orange-500">0/8 complete</p>
+            </div>
+            <button type="button" id="march-reset" class="py-2 px-3 rounded-lg border border-slate-600 text-slate-400 text-xs font-medium hover:bg-slate-800 hover:text-slate-200">Reset & run again</button>
           </div>
         </section>
 
@@ -493,14 +498,134 @@
     // ——— MARCH-PAWS ↔ user_data (medical) ———
     const marchIds = ['m-m','m-a','m-r','m-c','m-h','m-p','m-aw','m-s'];
     const MARCH_STEPS = [
-      { letter: 'M', id: 'm-m', label: 'Massive hemorrhage', prompt: 'What’s your first action for massive hemorrhage?', options: ['Pack wound and apply pressure', 'Tourniquet high and tight', 'Elevate the limb', 'Apply ice'], correctIndex: 1 },
-      { letter: 'A', id: 'm-a', label: 'Airway', prompt: 'Casualty has a blocked airway. What do you do?', options: ['Start an IV first', 'Insert NPA or perform surgical airway', 'Roll them on their side only', 'Give oral fluids'], correctIndex: 1 },
-      { letter: 'R', id: 'm-r', label: 'Respiration', prompt: 'Sucking chest wound. Correct action?', options: ['Leave it open to drain', 'Seal with chest seal (or occlusive dressing), needle decompress if tension', 'Only apply pressure', 'Give oxygen by mouth'], correctIndex: 1 },
-      { letter: 'C', id: 'm-c', label: 'Circulation', prompt: 'After life-threatening hemorrhage is controlled, circulation step includes:', options: ['Ignore fluids until hospital', 'IV access, fluids per protocol, reassess hemorrhage control', 'Oral fluids only', 'Tourniquet every limb'], correctIndex: 1 },
-      { letter: 'H', id: 'm-h', label: 'Hypothermia', prompt: 'How do you address hypothermia in the field?', options: ['Cool the casualty', 'Prevent heat loss: remove wet clothes, wrap in blanket/emergency blanket', 'Give cold fluids', 'Leave as-is'], correctIndex: 1 },
-      { letter: 'P', id: 'm-p', label: 'Head-to-toe & pain', prompt: 'The P in MARCH-PAWS is:', options: ['Only pain medication', 'Only head-to-toe exam', 'Head-to-toe assessment and pain management', 'Pulse check only'], correctIndex: 2 },
-      { letter: 'AW', id: 'm-aw', label: 'Wounds', prompt: 'For wounds (AW step) you:', options: ['Leave wounds undressed', 'Apply dressings and document findings', 'Only document', 'Only apply tourniquets'], correctIndex: 1 },
-      { letter: 'S', id: 'm-s', label: 'Shock', prompt: 'Shock (S) step: you should', options: ['Ignore vital signs', 'Monitor and reassess; treat per protocol', 'Give food and water', 'Move casualty immediately'], correctIndex: 1 }
+      {
+        letter: 'M', id: 'm-m', label: 'Massive hemorrhage',
+        prompt: 'Which actions apply to the M step (massive hemorrhage)?',
+        options: [
+          { text: 'Tourniquet high and tight for extremity hemorrhage', correct: true },
+          { text: 'Pack wound / junctional area with gauze and direct pressure', correct: true },
+          { text: 'Hemostatic gauze when indicated (e.g. junctional)', correct: true },
+          { text: 'Document time of tourniquet application', correct: true },
+          { text: 'Elevate the limb', correct: false },
+          { text: 'Apply ice to the wound', correct: false },
+          { text: 'Start IV access first', correct: false },
+          { text: 'Check blood glucose', correct: false },
+          { text: 'Apply chest seal', correct: false },
+          { text: 'Give oral fluids', correct: false }
+        ]
+      },
+      {
+        letter: 'A', id: 'm-a', label: 'Airway',
+        prompt: 'Which actions apply to the A step (airway)?',
+        options: [
+          { text: 'Insert NPA if no head injury / contraindication', correct: true },
+          { text: 'Surgical airway (cric) if indicated', correct: true },
+          { text: 'Position to maintain patent airway; suction if needed', correct: true },
+          { text: 'Roll them on their side only (recovery position)', correct: false },
+          { text: 'Start an IV first', correct: false },
+          { text: 'Needle decompress the chest', correct: false },
+          { text: 'Apply tourniquet', correct: false },
+          { text: 'Give oxygen by mouth', correct: false },
+          { text: 'Check capillary refill', correct: false },
+          { text: 'Apply hemostatic gauze', correct: false }
+        ]
+      },
+      {
+        letter: 'R', id: 'm-r', label: 'Respiration',
+        prompt: 'Which actions apply to the R step (respiration)?',
+        options: [
+          { text: 'Seal with chest seal or occlusive dressing', correct: true },
+          { text: 'Needle decompress if tension pneumothorax', correct: true },
+          { text: 'Monitor for developing tension', correct: true },
+          { text: 'Leave wound open to drain', correct: false },
+          { text: 'Apply tourniquet', correct: false },
+          { text: 'Insert NPA', correct: false },
+          { text: 'Give oral fluids', correct: false },
+          { text: 'Check blood glucose', correct: false },
+          { text: 'Start CPR', correct: false },
+          { text: 'Apply nasal cannula O2 only', correct: false }
+        ]
+      },
+      {
+        letter: 'C', id: 'm-c', label: 'Circulation',
+        prompt: 'Which actions apply to the C step (circulation)?',
+        options: [
+          { text: 'IV or IO access', correct: true },
+          { text: 'Fluids per protocol (e.g. Hextend / blood products per TCCC)', correct: true },
+          { text: 'Reassess hemorrhage control', correct: true },
+          { text: 'Tourniquet every limb', correct: false },
+          { text: 'Give oral fluids only', correct: false },
+          { text: 'Apply chest seal', correct: false },
+          { text: 'Needle decompress', correct: false },
+          { text: 'Apply supplemental oxygen', correct: false },
+          { text: 'Document only, no interventions', correct: false },
+          { text: 'Check pupil response', correct: false }
+        ]
+      },
+      {
+        letter: 'H', id: 'm-h', label: 'Hypothermia',
+        prompt: 'Which actions apply to the H step (hypothermia)?',
+        options: [
+          { text: 'Remove wet clothing', correct: true },
+          { text: 'Wrap in blanket / emergency blanket', correct: true },
+          { text: 'Minimize heat loss', correct: true },
+          { text: 'Cool the casualty', correct: false },
+          { text: 'Give cold fluids', correct: false },
+          { text: 'Apply ice pack', correct: false },
+          { text: 'Start IV with cold fluids', correct: false },
+          { text: 'Leave as-is', correct: false },
+          { text: 'Apply tourniquet', correct: false },
+          { text: 'Assess GCS', correct: false }
+        ]
+      },
+      {
+        letter: 'P', id: 'm-p', label: 'Head-to-toe & pain',
+        prompt: 'Which actions apply to the P step (head-to-toe & pain)?',
+        options: [
+          { text: 'Head-to-toe assessment', correct: true },
+          { text: 'Pain management (e.g. ketamine / TCCC-recommended)', correct: true },
+          { text: 'Assess for other injuries', correct: true },
+          { text: 'Only apply dressings', correct: false },
+          { text: 'Needle decompress', correct: false },
+          { text: 'Surgical airway', correct: false },
+          { text: 'Check blood glucose', correct: false },
+          { text: 'Apply chest seal', correct: false },
+          { text: 'Give oral pain meds only', correct: false },
+          { text: 'Start IV fluids', correct: false }
+        ]
+      },
+      {
+        letter: 'AW', id: 'm-aw', label: 'Wounds',
+        prompt: 'Which actions apply to the AW step (wounds)?',
+        options: [
+          { text: 'Apply dressings to wounds', correct: true },
+          { text: 'Document findings and wound location', correct: true },
+          { text: 'Protect from contamination', correct: true },
+          { text: 'Leave wounds undressed', correct: false },
+          { text: 'Apply hemostatic gauze to every wound', correct: false },
+          { text: 'Give antibiotics only', correct: false },
+          { text: 'Start IV first', correct: false },
+          { text: 'Needle decompress', correct: false },
+          { text: 'Check lactate level', correct: false },
+          { text: 'Apply tourniquet only', correct: false }
+        ]
+      },
+      {
+        letter: 'S', id: 'm-s', label: 'Shock',
+        prompt: 'Which actions apply to the S step (shock)?',
+        options: [
+          { text: 'Monitor vital signs', correct: true },
+          { text: 'Reassess perfusion', correct: true },
+          { text: 'Treat per protocol (fluids, reassess)', correct: true },
+          { text: 'Ignore vital signs', correct: false },
+          { text: 'Give food and water', correct: false },
+          { text: 'Move casualty immediately', correct: false },
+          { text: 'Apply tourniquet', correct: false },
+          { text: 'Chest seal', correct: false },
+          { text: 'Check blood glucose', correct: false },
+          { text: 'Apply supplemental O2 only', correct: false }
+        ]
+      }
     ];
 
     function marchToday() {
@@ -558,15 +683,25 @@
       feedbackEl.classList.add('hidden');
       feedbackEl.textContent = '';
       optionsEl.innerHTML = '';
-      step.options.forEach((text, idx) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'w-full text-left py-2 px-3 rounded-lg bg-slate-800 border border-slate-600 text-slate-200 text-sm hover:bg-slate-700 focus:ring-2 focus:ring-orange-500';
-        btn.textContent = text;
-        btn.dataset.index = String(idx);
-        optionsEl.appendChild(btn);
+      step.options.forEach((opt, idx) => {
+        const label = document.createElement('label');
+        label.className = 'flex items-start gap-2 py-2 px-3 rounded-lg bg-slate-800 border border-slate-600 text-slate-200 text-sm cursor-pointer hover:bg-slate-700';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'march-opt mt-0.5 h-4 w-4 rounded border-slate-600 bg-slate-800 text-orange-500';
+        cb.dataset.index = String(idx);
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(opt.text));
+        optionsEl.appendChild(label);
       });
       document.getElementById('march-question').classList.remove('hidden');
+    }
+
+    function getMarchSelectedIndices() {
+      const optionsEl = document.getElementById('march-q-options');
+      if (!optionsEl) return [];
+      const checked = optionsEl.querySelectorAll('.march-opt:checked');
+      return Array.from(checked).map(el => parseInt(el.dataset.index, 10));
     }
 
     function closeMarchQuestion() {
@@ -602,23 +737,34 @@
       });
     }
 
+    function resetMarchForToday() {
+      marchIds.forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
+      updateMarchProgress();
+      upsertMarchPaws();
+    }
+
     function initMarchPaws() {
       renderMarchList();
-      const optionsEl = document.getElementById('march-q-options');
+      document.getElementById('march-reset')?.addEventListener('click', resetMarchForToday);
       const feedbackEl = document.getElementById('march-q-feedback');
-      if (optionsEl) {
-        optionsEl.addEventListener('click', (e) => {
-          const btn = e.target.closest('button');
-          if (!btn || currentMarchStep == null) return;
-          const idx = parseInt(btn.dataset.index, 10);
-          if (idx === currentMarchStep.correctIndex) {
+      const submitBtn = document.getElementById('march-q-submit');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', () => {
+          if (currentMarchStep == null) return;
+          const selected = getMarchSelectedIndices();
+          const correctIndices = currentMarchStep.options.map((o, i) => o.correct ? i : -1).filter(i => i >= 0);
+          const selectedSet = new Set(selected);
+          const correctSet = new Set(correctIndices);
+          const allCorrectSelected = correctIndices.every(i => selectedSet.has(i));
+          const noWrongSelected = selected.every(i => correctSet.has(i));
+          if (allCorrectSelected && noWrongSelected && correctIndices.length > 0) {
             const check = document.getElementById(currentMarchStep.id);
             if (check) check.checked = true;
             updateMarchProgress();
             upsertMarchPaws();
             closeMarchQuestion();
           } else {
-            feedbackEl.textContent = 'Not quite. Choose the correct action for this step.';
+            feedbackEl.textContent = 'Select all and only the actions that apply to this step.';
             feedbackEl.classList.remove('hidden');
             feedbackEl.classList.add('text-amber-400');
           }
