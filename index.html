@@ -136,7 +136,11 @@
       </nav>
 
       <main class="flex-1 overflow-auto px-4 py-4">
-        <!-- Term of the Day (passive learning) -->
+        <!-- Dashboard intro + Term of the Day -->
+        <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+          <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
+          <p class="text-slate-400 text-xs leading-relaxed">Your training hub: drill MARCH-PAWS, practice 9-Line, log Muay Thai, record voice memos, and look up Navy/Marine terms. Use the tabs below to jump to each section.</p>
+        </div>
         <div id="term-of-the-day-card" class="mb-4 p-4 rounded-lg bg-slate-900/80 border border-orange-500/40">
           <p class="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-1">Term of the Day</p>
           <p id="totd-term" class="font-semibold text-slate-100 text-sm">—</p>
@@ -174,6 +178,10 @@
         <!-- 9-Line Medevac -->
         <section id="tab-medevac" class="tab-content" aria-labelledby="medevac-label">
           <h2 id="medevac-label" class="sr-only">9-Line Medevac Request</h2>
+          <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
+            <p class="text-slate-400 text-xs leading-relaxed">The 9-Line is the standard format for requesting medical evacuation (MEDEVAC). Fill each line; generate a summary to transmit. Practice so you can call it in under stress.</p>
+          </div>
           <form id="medevac-form" class="space-y-4">
             <div><label for="line1" class="block text-xs font-medium text-slate-400 mb-1">Line 1 — Location</label><input type="text" id="line1" name="line1" placeholder="Grid / location" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
             <div><label for="line2" class="block text-xs font-medium text-slate-400 mb-1">Line 2 — Frequency, call sign</label><input type="text" id="line2" name="line2" placeholder="Freq, call sign" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
@@ -196,7 +204,10 @@
         <!-- Muay Thai streak -->
         <section id="tab-muaythai" class="tab-content" aria-labelledby="muaythai-label">
           <h2 id="muaythai-label" class="sr-only">Muay Thai streak</h2>
-          <p class="text-slate-400 text-sm mb-4">Log each day you train to keep your streak.</p>
+          <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
+            <p class="text-slate-400 text-xs leading-relaxed">Log each day you train to keep your streak. One tap per day—keeps you honest and motivated.</p>
+          </div>
           <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800 text-center mb-4">
             <p class="text-slate-400 text-sm">Current streak</p>
             <p id="muaythai-streak" class="text-3xl font-bold text-orange-500">0</p>
@@ -209,7 +220,10 @@
         <!-- Voice memos (audio) -->
         <section id="tab-audio" class="tab-content" aria-labelledby="audio-label">
           <h2 id="audio-label" class="sr-only">Voice memos</h2>
-          <p class="text-slate-400 text-sm mb-4">Record medical mnemonics or singing; stored in the cloud and available on any device. Tap Download to save; on iPhone you can then open in Files and Share → Add to Voice Memos.</p>
+          <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
+            <p class="text-slate-400 text-xs leading-relaxed">Record medical mnemonics or singing; stored in the cloud and available on any device. Tap Download to save; on iPhone you can open in Files and Share → Add to Voice Memos.</p>
+          </div>
           <div class="flex gap-2 mb-4">
             <button type="button" id="audio-record" class="flex-1 py-3 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400">Record</button>
             <button type="button" id="audio-stop" class="flex-1 py-3 rounded-lg border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-800 disabled:opacity-50" disabled>Stop</button>
@@ -221,9 +235,13 @@
         <!-- Glossary (searchable, categorized) -->
         <section id="tab-glossary" class="tab-content" aria-labelledby="glossary-label">
           <h2 id="glossary-label" class="sr-only">Glossary</h2>
+          <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
+            <p class="text-slate-400 text-xs leading-relaxed">Translate Navy ↔ Marine lingo. Sailors say “head,” Marines say “latrine”; ship terms, FMF slang, TCCC/medical, and base life. Search or pick a category below.</p>
+          </div>
           <div class="mb-4">
             <label for="glossary-search" class="sr-only">Search glossary</label>
-            <input type="search" id="glossary-search" placeholder="Fuzzy search… e.g. Head, MEDEVAC, hemorrhage" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" />
+            <input type="search" id="glossary-search" placeholder="Search… e.g. Head, MEDEVAC, Doc, LZ" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" />
           </div>
           <nav class="flex gap-1 mb-4 overflow-x-auto pb-1" aria-label="Glossary categories">
             <button type="button" class="glossary-cat-btn active shrink-0 px-3 py-2 rounded-lg text-xs font-medium border text-slate-400 border-slate-600 bg-slate-800/50" data-category="all">All</button>
@@ -1111,45 +1129,46 @@
       const totd = getTermOfTheDay();
       const termEl = document.getElementById('totd-term');
       const defEl = document.getElementById('totd-def');
-      if (termEl && defEl) {
-        termEl.textContent = totd ? totd.term : '—';
-        defEl.textContent = totd ? totd.definition : '—';
-      }
+      if (termEl) termEl.textContent = totd ? totd.term : '—';
+      if (defEl) defEl.textContent = totd ? totd.definition : '—';
     }
 
-    const listEl = document.getElementById('glossary-list');
-    const emptyEl = document.getElementById('glossary-empty');
-    const searchInput = document.getElementById('glossary-search');
     let glossaryCategory = 'all';
 
     function renderGlossary() {
+      const listEl = document.getElementById('glossary-list');
+      const emptyEl = document.getElementById('glossary-empty');
+      const searchInput = document.getElementById('glossary-search');
       const q = (searchInput && searchInput.value) ? searchInput.value.trim() : '';
       let filtered = glossaryDB.filter(e => {
         if (glossaryCategory !== 'all' && e.category !== glossaryCategory) return false;
         return fuzzyMatch(e.term + ' ' + e.definition + (e.notes || ''), q);
       });
-      listEl.innerHTML = '';
-      filtered.forEach(entry => {
-        const li = document.createElement('li');
-        li.className = 'rounded-lg bg-slate-900/80 border border-slate-800 overflow-hidden';
-        let notesHtml = '';
-        if (entry.notes) {
-          notesHtml = '<div class="mt-3 pt-3 border-t border-slate-700"><p class="text-xs font-semibold text-orange-500/90 uppercase tracking-wider mb-1">Notes</p><p class="text-slate-400 text-xs leading-relaxed">' + escapeHtml(entry.notes) + '</p></div>';
-        }
-        li.innerHTML =
-          '<div class="p-3">' +
-            '<span class="font-semibold text-orange-500 text-sm">' + escapeHtml(entry.term) + '</span>' +
-            '<span class="text-slate-500 text-xs ml-2">' + escapeHtml(GLOSSARY_CATEGORIES[entry.category] || entry.category) + '</span>' +
-            '<p class="text-slate-400 text-sm mt-1">' + escapeHtml(entry.definition) + '</p>' +
-            notesHtml +
-          '</div>';
-        listEl.appendChild(li);
-      });
-      emptyEl.classList.toggle('hidden', filtered.length > 0);
+      if (listEl) {
+        listEl.innerHTML = '';
+        filtered.forEach(entry => {
+          const li = document.createElement('li');
+          li.className = 'rounded-lg bg-slate-900/80 border border-slate-800 overflow-hidden';
+          let notesHtml = '';
+          if (entry.notes) {
+            notesHtml = '<div class="mt-3 pt-3 border-t border-slate-700"><p class="text-xs font-semibold text-orange-500/90 uppercase tracking-wider mb-1">Notes</p><p class="text-slate-400 text-xs leading-relaxed">' + escapeHtml(entry.notes) + '</p></div>';
+          }
+          li.innerHTML =
+            '<div class="p-3">' +
+              '<span class="font-semibold text-orange-500 text-sm">' + escapeHtml(entry.term) + '</span>' +
+              '<span class="text-slate-500 text-xs ml-2">' + escapeHtml(GLOSSARY_CATEGORIES[entry.category] || entry.category) + '</span>' +
+              '<p class="text-slate-400 text-sm mt-1">' + escapeHtml(entry.definition) + '</p>' +
+              notesHtml +
+            '</div>';
+          listEl.appendChild(li);
+        });
+      }
+      if (emptyEl) emptyEl.classList.toggle('hidden', filtered.length > 0);
     }
 
     function initGlossary() {
       renderTermOfTheDay();
+      const searchInput = document.getElementById('glossary-search');
       document.querySelectorAll('.glossary-cat-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.glossary-cat-btn').forEach(b => b.classList.remove('active'));
