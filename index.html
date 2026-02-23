@@ -493,14 +493,14 @@
     // ——— MARCH-PAWS ↔ user_data (medical) ———
     const marchIds = ['m-m','m-a','m-r','m-c','m-h','m-p','m-aw','m-s'];
     const MARCH_STEPS = [
-      { letter: 'M', id: 'm-m', label: 'Massive hemorrhage (tourniquet / pressure)', prompt: 'What’s your first action for massive hemorrhage?', options: ['Pack wound and apply pressure', 'Tourniquet high and tight', 'Elevate the limb', 'Apply ice'], correctIndex: 1 },
-      { letter: 'A', id: 'm-a', label: 'Airway (patent / NPA / surgical)', prompt: 'Casualty has a blocked airway. What do you do?', options: ['Start an IV first', 'Insert NPA or perform surgical airway', 'Roll them on their side only', 'Give oral fluids'], correctIndex: 1 },
-      { letter: 'R', id: 'm-r', label: 'Respiration (seal / needle / chest seal)', prompt: 'Sucking chest wound. Correct action?', options: ['Leave it open to drain', 'Seal with chest seal (or occlusive dressing), needle decompress if tension', 'Only apply pressure', 'Give oxygen by mouth'], correctIndex: 1 },
-      { letter: 'C', id: 'm-c', label: 'Circulation (IV / fluids / hemorrhage control)', prompt: 'After life-threatening hemorrhage is controlled, circulation step includes:', options: ['Ignore fluids until hospital', 'IV access, fluids per protocol, reassess hemorrhage control', 'Oral fluids only', 'Tourniquet every limb'], correctIndex: 1 },
-      { letter: 'H', id: 'm-h', label: 'Hypothermia (prevention / wrap)', prompt: 'How do you address hypothermia in the field?', options: ['Cool the casualty', 'Prevent heat loss: remove wet clothes, wrap in blanket/emergency blanket', 'Give cold fluids', 'Leave as-is'], correctIndex: 1 },
-      { letter: 'P', id: 'm-p', label: 'Head-to-toe / Pain (assessment)', prompt: 'The P in MARCH-PAWS is:', options: ['Only pain medication', 'Only head-to-toe exam', 'Head-to-toe assessment and pain management', 'Pulse check only'], correctIndex: 2 },
-      { letter: 'AW', id: 'm-aw', label: 'Wounds (dressings / documentation)', prompt: 'For wounds (AW step) you:', options: ['Leave wounds undressed', 'Apply dressings and document findings', 'Only document', 'Only apply tourniquets'], correctIndex: 1 },
-      { letter: 'S', id: 'm-s', label: 'Shock (monitor / reassess)', prompt: 'Shock (S) step: you should', options: ['Ignore vital signs', 'Monitor and reassess; treat per protocol', 'Give food and water', 'Move casualty immediately'], correctIndex: 1 }
+      { letter: 'M', id: 'm-m', label: 'Massive hemorrhage', prompt: 'What’s your first action for massive hemorrhage?', options: ['Pack wound and apply pressure', 'Tourniquet high and tight', 'Elevate the limb', 'Apply ice'], correctIndex: 1 },
+      { letter: 'A', id: 'm-a', label: 'Airway', prompt: 'Casualty has a blocked airway. What do you do?', options: ['Start an IV first', 'Insert NPA or perform surgical airway', 'Roll them on their side only', 'Give oral fluids'], correctIndex: 1 },
+      { letter: 'R', id: 'm-r', label: 'Respiration', prompt: 'Sucking chest wound. Correct action?', options: ['Leave it open to drain', 'Seal with chest seal (or occlusive dressing), needle decompress if tension', 'Only apply pressure', 'Give oxygen by mouth'], correctIndex: 1 },
+      { letter: 'C', id: 'm-c', label: 'Circulation', prompt: 'After life-threatening hemorrhage is controlled, circulation step includes:', options: ['Ignore fluids until hospital', 'IV access, fluids per protocol, reassess hemorrhage control', 'Oral fluids only', 'Tourniquet every limb'], correctIndex: 1 },
+      { letter: 'H', id: 'm-h', label: 'Hypothermia', prompt: 'How do you address hypothermia in the field?', options: ['Cool the casualty', 'Prevent heat loss: remove wet clothes, wrap in blanket/emergency blanket', 'Give cold fluids', 'Leave as-is'], correctIndex: 1 },
+      { letter: 'P', id: 'm-p', label: 'Head-to-toe & pain', prompt: 'The P in MARCH-PAWS is:', options: ['Only pain medication', 'Only head-to-toe exam', 'Head-to-toe assessment and pain management', 'Pulse check only'], correctIndex: 2 },
+      { letter: 'AW', id: 'm-aw', label: 'Wounds', prompt: 'For wounds (AW step) you:', options: ['Leave wounds undressed', 'Apply dressings and document findings', 'Only document', 'Only apply tourniquets'], correctIndex: 1 },
+      { letter: 'S', id: 'm-s', label: 'Shock', prompt: 'Shock (S) step: you should', options: ['Ignore vital signs', 'Monitor and reassess; treat per protocol', 'Give food and water', 'Move casualty immediately'], correctIndex: 1 }
     ];
 
     function getMarchPayload() {
