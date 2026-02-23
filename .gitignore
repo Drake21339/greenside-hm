@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+
+# Optional: ignore local config so you don't accidentally commit keys
+# Uncomment the next line if you want to keep supabase/config.js only on your machine
+# supabase/config.js
+
+# OS
+.DS_Store

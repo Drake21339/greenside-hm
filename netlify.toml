@@ -1,0 +1,8 @@
+[build]
+  publish = "."
+
+# SPA: serve index.html for all routes (e.g. /reset-password for Forgot Password link)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

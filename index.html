@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Greenside HM Training Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tactical: { bg: '#0f172a', surface: '#1e293b', border: '#334155' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [data-theme="tactical"] { --tw-bg: #0f172a; --tw-surface: #1e293b; --tw-highlight: #f97316; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .tab-btn.active { border-bottom-color: #f97316; color: #f97316; }
+    @keyframes success-pop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+    .success-animation { animation: success-pop 0.5s ease-out; }
+    /* Flip cards — Striker's Guide */
+    .flip-card { perspective: 1000px; }
+    .flip-card-inner { position: relative; width: 100%; min-height: 100px; transition: transform 0.4s ease; transform-style: preserve-3d; }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front, .flip-card-back { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 0.5rem; padding: 1rem; display: flex; flex-direction: column; justify-content: center; }
+    .flip-card-front { background: linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%); border: 1px solid rgb(51,65,85); }
+    .flip-card-back { background: linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.95) 100%); border: 1px solid rgb(249,115,22); transform: rotateY(180deg); }
+    .glossary-cat-btn.active { color: rgb(249,115,22); border-color: rgb(249,115,22); background: rgba(249,115,22,0.1); }
+  </style>
+  <!-- Set window.SUPABASE_URL and window.SUPABASE_ANON_KEY before app loads (e.g. supabase/config.js) -->
+  <script src="supabase/config.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased" data-theme="tactical">
+  <div id="app-root" class="max-w-lg mx-auto min-h-screen flex flex-col pb-24">
+    <!-- Auth screen (shown when not signed in) -->
+    <div id="auth-screen" class="flex flex-col min-h-screen justify-center px-6 py-8">
+      <div class="w-full max-w-sm mx-auto">
+        <!-- Login view -->
+        <div id="auth-login-view">
+          <h1 class="text-xl font-semibold text-orange-500 tracking-tight mb-1">Greenside HM</h1>
+          <p class="text-slate-400 text-sm mb-6">Training Dashboard — Sign in to access your data.</p>
+          <form id="auth-form" class="space-y-4">
+            <div>
+              <label for="auth-email" class="block text-xs font-medium text-slate-400 mb-1">Email</label>
+              <input type="email" id="auth-email" required autocomplete="email" placeholder="you@example.com" class="w-full px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm" />
+            </div>
+            <div>
+              <label for="auth-password" class="block text-xs font-medium text-slate-400 mb-1">Password</label>
+              <input type="password" id="auth-password" required autocomplete="current-password" placeholder="••••••••" class="w-full px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm" />
+            </div>
+            <p id="auth-error" class="text-red-400 text-sm hidden"></p>
+            <div class="flex gap-3">
+              <button type="submit" id="auth-signin" class="flex-1 py-2.5 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400 focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950">Sign In</button>
+              <button type="button" id="auth-signup" class="flex-1 py-2.5 rounded-lg border border-orange-500 text-orange-500 text-sm font-medium hover:bg-orange-500/10">Sign Up</button>
+            </div>
+            <p class="mt-3 text-center">
+              <button type="button" id="auth-forgot-link" class="text-xs text-slate-400 hover:text-orange-400">Forgot Password?</button>
+            </p>
+          </form>
+          <p class="mt-4 text-slate-500 text-xs">Your data is stored securely and synced for the long haul.</p>
+        </div>
+        <!-- Request reset view (forgot password) -->
+        <div id="auth-forgot-view" class="hidden">
+          <h1 class="text-xl font-semibold text-orange-500 tracking-tight mb-1">Reset Password</h1>
+          <p class="text-slate-400 text-sm mb-6">Enter your email and we’ll send you a recovery link.</p>
+          <form id="forgot-form" class="space-y-4">
+            <div>
+              <label for="forgot-email" class="block text-xs font-medium text-slate-400 mb-1">Email</label>
+              <input type="email" id="forgot-email" required autocomplete="email" placeholder="you@example.com" class="w-full px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm" />
+            </div>
+            <p id="forgot-error" class="text-red-400 text-sm hidden"></p>
+            <p id="forgot-success" class="text-orange-400 text-sm hidden">Check your email for a reset link.</p>
+            <button type="submit" id="forgot-submit" class="w-full py-2.5 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400 focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:opacity-60 disabled:pointer-events-none">
+              <span id="forgot-btn-text">Send reset link</span>
+            </button>
+            <button type="button" id="forgot-back" class="w-full mt-2 py-2 rounded-lg border border-slate-600 text-slate-400 text-sm hover:text-slate-200">Back to login</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reset password page (shown at /reset-password when recovery link is used) -->
+    <div id="reset-password-screen" class="hidden flex flex-col min-h-screen justify-center px-6 py-8">
+      <div class="w-full max-w-sm mx-auto">
+        <div id="reset-password-form-view">
+          <h1 class="text-xl font-semibold text-orange-500 tracking-tight mb-1">Set new password</h1>
+          <p class="text-slate-400 text-sm mb-6">Enter your new password below.</p>
+          <form id="reset-password-form" class="space-y-4">
+            <div>
+              <label for="new-password" class="block text-xs font-medium text-slate-400 mb-1">New Password</label>
+              <input type="password" id="new-password" required minlength="6" autocomplete="new-password" placeholder="••••••••" class="w-full px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm" />
+            </div>
+            <p id="reset-password-error" class="text-red-400 text-sm hidden"></p>
+            <button type="submit" id="reset-password-submit" class="w-full py-2.5 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400 focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:opacity-60 disabled:pointer-events-none">
+              <span id="reset-password-btn-text">Update password</span>
+            </button>
+          </form>
+        </div>
+        <div id="reset-password-success-view" class="hidden text-center">
+          <div class="success-animation inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-500/20 text-orange-500 mb-4">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <h2 class="text-lg font-semibold text-orange-500 mb-2">Password updated</h2>
+          <p class="text-slate-400 text-sm">Taking you to the dashboard…</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard (shown when signed in) -->
+    <div id="dashboard" class="hidden flex flex-col min-h-screen">
+      <header class="sticky top-0 z-20 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+        <div>
+          <h1 class="text-lg font-semibold text-orange-500 tracking-tight">Greenside HM</h1>
+          <p class="text-xs text-slate-400">Training Dashboard</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="sync-indicator" class="inline-flex items-center gap-1.5 text-xs text-slate-500" title="Sync status">
+            <span id="sync-dot" class="w-2 h-2 rounded-full bg-slate-600"></span>
+            <span id="sync-label">—</span>
+          </span>
+          <button type="button" id="btn-signout" class="text-xs text-slate-400 hover:text-slate-200">Sign out</button>
+        </div>
+      </header>
+
+      <nav class="flex border-b border-slate-800 bg-slate-900/50 shrink-0 overflow-x-auto" aria-label="Sections">
+        <button type="button" class="tab-btn active flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="march">MARCH-PAWS</button>
+        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="medevac">9-Line</button>
+        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="muaythai">Muay Thai</button>
+        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="audio">Voice Memos</button>
+        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="glossary">Glossary</button>
+      </nav>
+
+      <main class="flex-1 overflow-auto px-4 py-4">
+        <!-- Term of the Day (passive learning) -->
+        <div id="term-of-the-day-card" class="mb-4 p-4 rounded-lg bg-slate-900/80 border border-orange-500/40">
+          <p class="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-1">Term of the Day</p>
+          <p id="totd-term" class="font-semibold text-slate-100 text-sm">—</p>
+          <p id="totd-def" class="text-slate-400 text-xs mt-1">—</p>
+        </div>
+
+        <!-- MARCH-PAWS -->
+        <section id="tab-march" class="tab-content active" aria-labelledby="march-label">
+          <h2 id="march-label" class="sr-only">MARCH-PAWS Assessment</h2>
+          <p class="text-slate-400 text-sm mb-4">Complete the tactical medical assessment checklist. Progress is saved automatically.</p>
+          <ul class="space-y-3" role="list">
+            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
+              <input type="checkbox" id="m-m" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="M" />
+              <label for="m-m" class="flex-1 text-sm"><span class="font-semibold text-orange-500">M</span> — Massive hemorrhage (tourniquet / pressure)</label>
+            </li>
+            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
+              <input type="checkbox" id="m-a" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="A" />
+              <label for="m-a" class="flex-1 text-sm"><span class="font-semibold text-orange-500">A</span> — Airway (patent / NPA / surgical)</label>
+            </li>
+            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
+              <input type="checkbox" id="m-r" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="R" />
+              <label for="m-r" class="flex-1 text-sm"><span class="font-semibold text-orange-500">R</span> — Respiration (seal / needle / chest seal)</label>
+            </li>
+            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
+              <input type="checkbox" id="m-c" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="C" />
+              <label for="m-c" class="flex-1 text-sm"><span class="font-semibold text-orange-500">C</span> — Circulation (IV / fluids / hemorrhage control)</label>
+            </li>
+            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
+              <input type="checkbox" id="m-h" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="H" />
+              <label for="m-h" class="flex-1 text-sm"><span class="font-semibold text-orange-500">H</span> — Hypothermia (prevention / wrap)</label>
+            </li>
+            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
+              <input type="checkbox" id="m-p" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="P" />
+              <label for="m-p" class="flex-1 text-sm"><span class="font-semibold text-orange-500">P</span> — Head-to-toe / Pain (assessment)</label>
+            </li>
+            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
+              <input type="checkbox" id="m-aw" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="AW" />
+              <label for="m-aw" class="flex-1 text-sm"><span class="font-semibold text-orange-500">AW</span> — Wounds (dressings / documentation)</label>
+            </li>
+            <li class="march-item flex items-start gap-3 p-3 rounded-lg bg-slate-900/80 border border-slate-800">
+              <input type="checkbox" id="m-s" class="march-check mt-1 h-5 w-5 rounded border-slate-600 bg-slate-800 text-orange-500 focus:ring-orange-500 focus:ring-offset-slate-950" data-letter="S" />
+              <label for="m-s" class="flex-1 text-sm"><span class="font-semibold text-orange-500">S</span> — Shock (monitor / reassess)</label>
+            </li>
+          </ul>
+          <div class="mt-4 p-3 rounded-lg bg-slate-900/60 border border-slate-700">
+            <p class="text-xs text-slate-400">Progress</p>
+            <p id="march-progress" class="text-sm font-medium text-orange-500">0/8 complete</p>
+          </div>
+        </section>
+
+        <!-- 9-Line Medevac -->
+        <section id="tab-medevac" class="tab-content" aria-labelledby="medevac-label">
+          <h2 id="medevac-label" class="sr-only">9-Line Medevac Request</h2>
+          <form id="medevac-form" class="space-y-4">
+            <div><label for="line1" class="block text-xs font-medium text-slate-400 mb-1">Line 1 — Location</label><input type="text" id="line1" name="line1" placeholder="Grid / location" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div><label for="line2" class="block text-xs font-medium text-slate-400 mb-1">Line 2 — Frequency, call sign</label><input type="text" id="line2" name="line2" placeholder="Freq, call sign" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div><label for="line3" class="block text-xs font-medium text-slate-400 mb-1">Line 3 — Precedence</label><select id="line3" name="line3" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="">Select</option><option value="A">A — Urgent (2 hr)</option><option value="B">B — Urgent (2 hr)</option><option value="C">C — Priority (4 hr)</option><option value="D">D — Routine (24 hr)</option><option value="E">E — Convenience</option></select></div>
+            <div><label for="line4" class="block text-xs font-medium text-slate-400 mb-1">Line 4 — Special equipment</label><select id="line4" name="line4" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="None">None</option><option value="Hoist">Hoist</option><option value="Extraction equipment">Extraction equipment</option><option value="Ventilator">Ventilator</option></select></div>
+            <div><label for="line5" class="block text-xs font-medium text-slate-400 mb-1">Line 5 — Litter / Ambulatory</label><input type="text" id="line5" name="line5" placeholder="e.g. 2L 1A" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div><label for="line6" class="block text-xs font-medium text-slate-400 mb-1">Line 6 — Security / wound type</label><input type="text" id="line6" name="line6" placeholder="e.g. No enemy" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div><label for="line7" class="block text-xs font-medium text-slate-400 mb-1">Line 7 — Marking</label><select id="line7" name="line7" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="Panels">Panels</option><option value="Pyrotechnic">Pyrotechnic</option><option value="Smoke">Smoke</option><option value="None">None</option><option value="Other">Other</option></select></div>
+            <div><label for="line8" class="block text-xs font-medium text-slate-400 mb-1">Line 8 — Nationality & status</label><select id="line8" name="line8" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 focus:ring-2 focus:ring-orange-500 text-sm"><option value="US military">US military</option><option value="US civilian">US civilian</option><option value="Non-US military">Non-US military</option><option value="Non-US civilian">Non-US civilian</option><option value="EPW">EPW</option></select></div>
+            <div><label for="line9" class="block text-xs font-medium text-slate-400 mb-1">Line 9 — CBRN / terrain</label><input type="text" id="line9" name="line9" placeholder="NBC or terrain" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
+            <div class="flex gap-2">
+              <button type="button" id="medevac-generate" class="flex-1 py-3 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400 focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950">Generate Summary</button>
+              <button type="button" id="medevac-save" class="py-3 px-4 rounded-lg border border-orange-500 text-orange-500 text-sm font-medium hover:bg-orange-500/10">Save to cloud</button>
+            </div>
+          </form>
+          <div id="medevac-summary" class="mt-4 p-4 rounded-lg bg-slate-900 border border-slate-700 font-mono text-xs text-slate-300 whitespace-pre-wrap hidden"></div>
+          <button type="button" id="medevac-copy" class="mt-2 w-full py-2 rounded-lg border border-orange-500 text-orange-500 text-sm font-medium hover:bg-orange-500/10 hidden">Copy to clipboard</button>
+        </section>
+
+        <!-- Muay Thai streak -->
+        <section id="tab-muaythai" class="tab-content" aria-labelledby="muaythai-label">
+          <h2 id="muaythai-label" class="sr-only">Muay Thai streak</h2>
+          <p class="text-slate-400 text-sm mb-4">Log each day you train to keep your streak.</p>
+          <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800 text-center mb-4">
+            <p class="text-slate-400 text-sm">Current streak</p>
+            <p id="muaythai-streak" class="text-3xl font-bold text-orange-500">0</p>
+            <p class="text-slate-500 text-xs mt-1">days</p>
+            <p id="muaythai-last" class="text-slate-500 text-xs mt-2">Last drill: —</p>
+          </div>
+          <button type="button" id="muaythai-log" class="w-full py-3 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400 focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-slate-950">Log today’s drill</button>
+        </section>
+
+        <!-- Voice memos (audio) -->
+        <section id="tab-audio" class="tab-content" aria-labelledby="audio-label">
+          <h2 id="audio-label" class="sr-only">Voice memos</h2>
+          <p class="text-slate-400 text-sm mb-4">Record medical mnemonics or singing; stored in the cloud and available on any device.</p>
+          <div class="flex gap-2 mb-4">
+            <button type="button" id="audio-record" class="flex-1 py-3 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400">Record</button>
+            <button type="button" id="audio-stop" class="flex-1 py-3 rounded-lg border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-800 disabled:opacity-50" disabled>Stop</button>
+          </div>
+          <p id="audio-status" class="text-slate-500 text-sm mb-4"></p>
+          <ul id="audio-list" class="space-y-2"></ul>
+        </section>
+
+        <!-- Glossary (searchable, categorized) -->
+        <section id="tab-glossary" class="tab-content" aria-labelledby="glossary-label">
+          <h2 id="glossary-label" class="sr-only">Glossary</h2>
+          <div class="mb-4">
+            <label for="glossary-search" class="sr-only">Search glossary</label>
+            <input type="search" id="glossary-search" placeholder="Fuzzy search… e.g. Head, MEDEVAC, hemorrhage" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" />
+          </div>
+          <nav class="flex gap-1 mb-4 overflow-x-auto pb-1" aria-label="Glossary categories">
+            <button type="button" class="glossary-cat-btn active shrink-0 px-3 py-2 rounded-lg text-xs font-medium border text-slate-400 border-slate-600 bg-slate-800/50" data-category="all">All</button>
+            <button type="button" class="glossary-cat-btn shrink-0 px-3 py-2 rounded-lg text-xs font-medium border border-slate-600 text-slate-400" data-category="naval_tradition">Naval Tradition</button>
+            <button type="button" class="glossary-cat-btn shrink-0 px-3 py-2 rounded-lg text-xs font-medium border border-slate-600 text-slate-400" data-category="marine_fmf">Marine FMF</button>
+            <button type="button" class="glossary-cat-btn shrink-0 px-3 py-2 rounded-lg text-xs font-medium border border-slate-600 text-slate-400" data-category="medical_tccc">Medical/TCCC</button>
+            <button type="button" class="glossary-cat-btn shrink-0 px-3 py-2 rounded-lg text-xs font-medium border border-slate-600 text-slate-400" data-category="base_life_jbsa">Base Life (JBSA)</button>
+          </nav>
+          <ul id="glossary-list" class="space-y-3" role="list"></ul>
+          <p id="glossary-empty" class="text-slate-500 text-sm py-4 hidden">No matching terms.</p>
+        </section>
+      </main>
+    </div>
+
+    <!-- Config missing -->
+    <div id="config-missing" class="hidden fixed inset-0 bg-slate-950 flex items-center justify-center p-6">
+      <div class="text-center max-w-sm">
+        <p class="text-orange-500 font-semibold mb-2">Supabase not configured</p>
+        <p class="text-slate-400 text-sm">Create <code class="text-slate-300">supabase/config.js</code> with <code class="text-slate-300">window.SUPABASE_URL</code> and <code class="text-slate-300">window.SUPABASE_ANON_KEY</code>. See <code class="text-slate-300">supabase/config.example.js</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const SUPABASE_URL = window.SUPABASE_URL || '';
+    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || '';
+
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      document.getElementById('config-missing').classList.remove('hidden');
+      document.getElementById('app-root').classList.add('hidden');
+      throw new Error('Missing Supabase config');
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ——— Sync indicator ———
+    const syncDot = document.getElementById('sync-dot');
+    const syncLabel = document.getElementById('sync-label');
+    function setSyncState(state, label) {
+      syncDot.className = 'w-2 h-2 rounded-full ' + (state === 'synced' ? 'bg-orange-500' : state === 'syncing' ? 'bg-amber-500 animate-pulse' : 'bg-slate-600');
+      syncLabel.textContent = label || (state === 'synced' ? 'Synced' : state === 'syncing' ? 'Syncing…' : '—');
+    }
+
+    // ——— Auth ———
+    const authScreen = document.getElementById('auth-screen');
+    const dashboard = document.getElementById('dashboard');
+    const authForm = document.getElementById('auth-form');
+    const authEmail = document.getElementById('auth-email');
+    const authPassword = document.getElementById('auth-password');
+    const authError = document.getElementById('auth-error');
+    const authSignIn = document.getElementById('auth-signin');
+    const authSignUp = document.getElementById('auth-signup');
+
+    function showAuthError(msg) {
+      authError.textContent = msg || '';
+      authError.classList.toggle('hidden', !msg);
+    }
+
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showAuthError('');
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      } catch (err) {
+        showAuthError(err.message || 'Sign in failed');
+      }
+    });
+
+    authSignUp.addEventListener('click', async () => {
+      showAuthError('');
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
+      if (!email || !password) { showAuthError('Email and password required'); return; }
+      try {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        showAuthError('Check your email to confirm, then sign in.');
+      } catch (err) {
+        showAuthError(err.message || 'Sign up failed');
+      }
+    });
+
+    document.getElementById('btn-signout').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+    });
+
+    // ——— Forgot Password (request reset) ———
+    const authLoginView = document.getElementById('auth-login-view');
+    const authForgotView = document.getElementById('auth-forgot-view');
+    const forgotForm = document.getElementById('forgot-form');
+    const forgotEmail = document.getElementById('forgot-email');
+    const forgotError = document.getElementById('forgot-error');
+    const forgotSuccess = document.getElementById('forgot-success');
+    const forgotSubmit = document.getElementById('forgot-submit');
+    const forgotBtnText = document.getElementById('forgot-btn-text');
+
+    document.getElementById('auth-forgot-link').addEventListener('click', () => {
+      authLoginView.classList.add('hidden');
+      authForgotView.classList.remove('hidden');
+      forgotError.classList.add('hidden');
+      forgotSuccess.classList.add('hidden');
+      forgotEmail.value = authEmail.value || '';
+    });
+
+    document.getElementById('forgot-back').addEventListener('click', () => {
+      authForgotView.classList.add('hidden');
+      authLoginView.classList.remove('hidden');
+      showAuthError('');
+    });
+
+    forgotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      forgotError.classList.add('hidden');
+      forgotSuccess.classList.add('hidden');
+      const email = forgotEmail.value.trim();
+      if (!email) return;
+      forgotSubmit.disabled = true;
+      forgotBtnText.textContent = 'Sending…';
+      try {
+        const redirectTo = window.location.origin + '/reset-password';
+        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+        if (error) throw error;
+        forgotSuccess.classList.remove('hidden');
+        forgotSuccess.textContent = 'Check your email for a reset link.';
+      } catch (err) {
+        forgotError.textContent = err.message || 'Could not send reset email';
+        forgotError.classList.remove('hidden');
+      }
+      forgotSubmit.disabled = false;
+      forgotBtnText.textContent = 'Send reset link';
+    });
+
+    // ——— Reset Password screen (route + PASSWORD_RECOVERY) ———
+    const resetPasswordScreen = document.getElementById('reset-password-screen');
+    const resetPasswordFormView = document.getElementById('reset-password-form-view');
+    const resetPasswordSuccessView = document.getElementById('reset-password-success-view');
+    const resetPasswordForm = document.getElementById('reset-password-form');
+    const newPasswordInput = document.getElementById('new-password');
+    const resetPasswordError = document.getElementById('reset-password-error');
+    const resetPasswordSubmit = document.getElementById('reset-password-submit');
+    const resetPasswordBtnText = document.getElementById('reset-password-btn-text');
+
+    function isResetPasswordRoute() {
+      return typeof window !== 'undefined' && (window.location.pathname === '/reset-password' || window.location.pathname.endsWith('/reset-password'));
+    }
+
+    function showResetPasswordScreen(showForm) {
+      authScreen.classList.add('hidden');
+      dashboard.classList.add('hidden');
+      resetPasswordScreen.classList.remove('hidden');
+      resetPasswordFormView.classList.toggle('hidden', !showForm);
+      resetPasswordSuccessView.classList.add('hidden');
+    }
+
+    function hideResetPasswordScreen() {
+      resetPasswordScreen.classList.add('hidden');
+    }
+
+    resetPasswordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      resetPasswordError.classList.add('hidden');
+      const password = newPasswordInput.value;
+      if (!password || password.length < 6) {
+        resetPasswordError.textContent = 'Password must be at least 6 characters';
+        resetPasswordError.classList.remove('hidden');
+        return;
+      }
+      resetPasswordSubmit.disabled = true;
+      resetPasswordBtnText.textContent = 'Saving…';
+      try {
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) throw error;
+        resetPasswordFormView.classList.add('hidden');
+        resetPasswordSuccessView.classList.remove('hidden');
+        setTimeout(() => {
+          window.location.replace(window.location.origin + (window.location.pathname.replace(/\/reset-password\/?$/, '') || '/'));
+        }, 1800);
+      } catch (err) {
+        resetPasswordError.textContent = err.message || 'Could not update password';
+        resetPasswordError.classList.remove('hidden');
+        resetPasswordSubmit.disabled = false;
+        resetPasswordBtnText.textContent = 'Update password';
+      }
+    });
+
+    function renderAuth(session, event) {
+      if (event === 'PASSWORD_RECOVERY') {
+        showResetPasswordScreen(true);
+        return;
+      }
+      if (session?.user) {
+        if (isResetPasswordRoute()) {
+          showResetPasswordScreen(true);
+          return;
+        }
+        hideResetPasswordScreen();
+        authScreen.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        initDashboard(session.user.id);
+      } else {
+        if (isResetPasswordRoute()) {
+          showResetPasswordScreen(true);
+          return;
+        }
+        hideResetPasswordScreen();
+        authScreen.classList.remove('hidden');
+        dashboard.classList.add('hidden');
+      }
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (isResetPasswordRoute()) {
+        showResetPasswordScreen(true);
+        return;
+      }
+      renderAuth(session);
+    });
+
+    supabase.auth.onAuthStateChange((event, session) => {
+      renderAuth(session, event);
+    });
+
+    // ——— Dashboard (only after auth) ———
+    let userId = null;
+
+    function initDashboard(uid) {
+      userId = uid;
+      initTabs();
+      loadMarchPaws();
+      loadMedevac();
+      loadMuayThai();
+      loadAudioList();
+      initMarchPaws();
+      initMedevac();
+      initMuayThai();
+      initAudio();
+      initGlossary();
+    }
+
+    function initTabs() {
+      const tabs = document.querySelectorAll('.tab-btn');
+      const contents = document.querySelectorAll('.tab-content');
+      tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.tab;
+          tabs.forEach(b => b.classList.remove('active'));
+          contents.forEach(c => { c.classList.remove('active'); c.classList.add('hidden'); });
+          btn.classList.add('active');
+          const panel = document.getElementById('tab-' + id);
+          if (panel) { panel.classList.remove('hidden'); panel.classList.add('active'); }
+        });
+      });
+    }
+
+    // ——— user_data helpers (category: 'medical' | 'muay-thai' | 'vocal') ———
+    async function getUserData(category) {
+      const { data } = await supabase.from('user_data').select('content').eq('user_id', userId).eq('category', category).maybeSingle();
+      return data?.content ?? {};
+    }
+    async function upsertUserData(category, content) {
+      setSyncState('syncing', 'Syncing…');
+      const { error } = await supabase.from('user_data').upsert({ user_id: userId, category, content, updated_at: new Date().toISOString() }, { onConflict: 'user_id,category' });
+      setSyncState(error ? 'idle' : 'synced', error ? 'Sync failed' : 'Synced');
+      return error;
+    }
+
+    // ——— MARCH-PAWS ↔ user_data (medical) ———
+    const marchIds = ['m-m','m-a','m-r','m-c','m-h','m-p','m-aw','m-s'];
+    function getMarchPayload() {
+      const o = {};
+      marchIds.forEach((id) => { o[id] = document.getElementById(id)?.checked ?? false; });
+      return o;
+    }
+    function setMarchPayload(payload) {
+      if (!payload) return;
+      marchIds.forEach(id => { const el = document.getElementById(id); if (el) el.checked = !!payload[id]; });
+      updateMarchProgress();
+    }
+    function updateMarchProgress() {
+      const n = marchIds.filter(id => document.getElementById(id)?.checked).length;
+      document.getElementById('march-progress').textContent = n + '/8 complete';
+    }
+
+    async function loadMarchPaws() {
+      const content = await getUserData('medical');
+      setMarchPayload(content.march_paws);
+    }
+
+    async function upsertMarchPaws() {
+      const content = await getUserData('medical');
+      content.march_paws = getMarchPayload();
+      await upsertUserData('medical', content);
+    }
+
+    function initMarchPaws() {
+      marchIds.forEach(id => document.getElementById(id)?.addEventListener('change', () => { updateMarchProgress(); upsertMarchPaws(); }));
+    }
+
+    // ——— 9-Line Medevac ↔ user_data (medical) ———
+    function getMedevacPayload() {
+      const lines = [1,2,3,4,5,6,7,8,9].map(i => (document.getElementById('line' + i)?.value || '').trim());
+      return { lines };
+    }
+    function setMedevacPayload(payload) {
+      if (!payload?.lines) return;
+      payload.lines.forEach((v, i) => { const el = document.getElementById('line' + (i + 1)); if (el) el.value = v || ''; });
+    }
+
+    async function loadMedevac() {
+      const content = await getUserData('medical');
+      setMedevacPayload(content.medevac);
+    }
+
+    document.getElementById('medevac-generate').addEventListener('click', () => {
+      const lines = [1,2,3,4,5,6,7,8,9].map(i => (document.getElementById('line' + i)?.value || '').trim());
+      const text = lines.map((v, i) => 'LINE ' + (i + 1) + ': ' + (v || '—')).join('\n');
+      const summary = document.getElementById('medevac-summary');
+      summary.textContent = text;
+      summary.classList.remove('hidden');
+      document.getElementById('medevac-copy').classList.remove('hidden');
+      document.getElementById('medevac-copy').dataset.copy = text;
+    });
+
+    document.getElementById('medevac-copy').addEventListener('click', () => {
+      const t = document.getElementById('medevac-copy').dataset.copy;
+      if (t && navigator.clipboard) navigator.clipboard.writeText(t).then(() => { document.getElementById('medevac-copy').textContent = 'Copied'; setTimeout(() => { document.getElementById('medevac-copy').textContent = 'Copy to clipboard'; }, 1500); });
+    });
+
+    document.getElementById('medevac-save').addEventListener('click', async () => {
+      const content = await getUserData('medical');
+      content.medevac = getMedevacPayload();
+      await upsertUserData('medical', content);
+    });
+
+    // ——— Muay Thai ↔ user_data (muay-thai) ———
+    function todayStr() { const d = new Date(); return d.toISOString().slice(0, 10); }
+    function isYesterday(dateStr) {
+      const d = new Date(dateStr); d.setDate(d.getDate() + 1);
+      return d.toISOString().slice(0, 10) === todayStr();
+    }
+
+    async function loadMuayThai() {
+      const content = await getUserData('muay-thai');
+      const streak_days = Number(content.streak_days) || 0;
+      const last_drill_date = content.last_drill_date || null;
+      document.getElementById('muaythai-streak').textContent = streak_days;
+      document.getElementById('muaythai-last').textContent = last_drill_date ? 'Last drill: ' + last_drill_date : 'Last drill: —';
+    }
+
+    document.getElementById('muaythai-log').addEventListener('click', async () => {
+      const content = await getUserData('muay-thai');
+      const streak_days = Number(content.streak_days) || 0;
+      const last_drill_date = content.last_drill_date || null;
+      const today = todayStr();
+      let newStreak = 1;
+      if (last_drill_date === today) return;
+      if (last_drill_date && isYesterday(last_drill_date)) newStreak = streak_days + 1;
+      const err = await upsertUserData('muay-thai', { streak_days: newStreak, last_drill_date: today });
+      if (!err) { document.getElementById('muaythai-streak').textContent = newStreak; document.getElementById('muaythai-last').textContent = 'Last drill: ' + today; }
+    });
+
+    function initMuayThai() {}
+
+    // ——— Audio: upload to jocelyn-audio, save URL in user_data (vocal) ———
+    const audioStatus = document.getElementById('audio-status');
+    const audioList = document.getElementById('audio-list');
+    let mediaRecorder = null;
+    let audioChunks = [];
+
+    async function loadAudioList() {
+      const content = await getUserData('vocal');
+      const urls = content.audio_urls || [];
+      if (!Array.isArray(urls)) return;
+      audioList.innerHTML = '';
+      urls.forEach((item, i) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center gap-2 p-3 rounded-lg bg-slate-900/80 border border-slate-800';
+        const name = (item && item.name) ? item.name : ('Recording ' + (i + 1));
+        const url = item?.url || item;
+        li.innerHTML = '<audio controls class="flex-1 max-w-full h-8" src="' + escapeAttr(url) + '"></audio><span class="text-slate-400 text-xs truncate">' + escapeHtml(name) + '</span>';
+        audioList.appendChild(li);
+      });
+    }
+
+    function escapeAttr(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML.replace(/"/g, '&quot;');
+    }
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    document.getElementById('audio-record').addEventListener('click', async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        mediaRecorder.ondataavailable = e => { if (e.data.size) audioChunks.push(e.data); };
+        mediaRecorder.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop());
+          const blob = new Blob(audioChunks, { type: 'audio/webm' });
+          const name = 'memo_' + Date.now() + '.webm';
+          const path = userId + '/' + name;
+          audioStatus.textContent = 'Uploading…';
+          setSyncState('syncing', 'Syncing…');
+          const { error: upErr } = await supabase.storage.from('jocelyn-audio').upload(path, blob, { contentType: 'audio/webm', upsert: true });
+          if (upErr) { audioStatus.textContent = 'Upload failed: ' + upErr.message; setSyncState('idle', 'Sync failed'); return; }
+          const { data: urlData } = supabase.storage.from('jocelyn-audio').getPublicUrl(path);
+          const newUrl = urlData?.publicUrl || '';
+          const content = await getUserData('vocal');
+          const urls = Array.isArray(content.audio_urls) ? content.audio_urls : [];
+          urls.push({ url: newUrl, name: name, created_at: new Date().toISOString() });
+          const err = await upsertUserData('vocal', { ...content, audio_urls: urls });
+          audioStatus.textContent = err ? 'Save failed' : 'Saved.';
+          loadAudioList();
+        };
+        mediaRecorder.start();
+        document.getElementById('audio-record').disabled = true;
+        document.getElementById('audio-stop').disabled = false;
+        audioStatus.textContent = 'Recording…';
+      } catch (e) {
+        audioStatus.textContent = 'Microphone access denied or unavailable.';
+      }
+    });
+
+    document.getElementById('audio-stop').addEventListener('click', () => {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+      document.getElementById('audio-record').disabled = false;
+      document.getElementById('audio-stop').disabled = true;
+    });
+
+    function initAudio() {}
+
+    // ——— The Striker's Guide to Medicine (Muay Thai → medical flip cards) ———
+    const strikersGuide = [
+      { front: 'Guard up', back: 'Protect the airway first. Like keeping your hands up, maintain C-spine and a patent airway—nothing matters if they can’t breathe.' },
+      { front: 'Checking the kick', back: 'Hemorrhage control. Stop the bleed before it stops the fight. Tourniquet high and tight; pack and pressure when you can. M in MARCH.' },
+      { front: 'The teep (push kick)', back: 'Create distance to assess. Use the teep to get space; in trauma, get to cover, then run your primary survey. Don’t get caught in the pocket blind.' },
+      { front: 'One shot, one kill', back: 'Massive hemorrhage can drop someone in seconds. Address M first in MARCH—it’s the strike that ends the fight if you ignore it.' },
+      { front: 'Breathing in the clinch', back: 'Respiration (R). In the clinch you feel every breath; in trauma, ensure chest rise, seal sucking chest wounds, needle decompress if needed.' },
+      { front: 'Gas tank', back: 'Circulation & shock. When the tank’s empty they’re in shock. IV access, fluids, keep them perfused. C in MARCH.' },
+      { front: 'Recovery between rounds', back: 'Hypothermia prevention (H). Wrap them, keep them dry. Don’t let the body shut down between rounds of care.' },
+      { front: 'When the ref stops the fight', back: '9-Line MEDEVAC. Know when to call for evac. Precedence (A/B/C/D/E) is like how fast the ref steps in—urgent is now.' },
+      { front: 'Your corner', back: 'CLS and TCCC. Your corner has your back; CLS and unit medics have the casualty’s back until Doc gets there.' },
+      { front: 'Pad work & combos', back: 'MARCH-PAWS is your combo. Drill the sequence until it’s muscle memory—same as pad work. Order matters.' },
+      { front: 'Ring awareness', back: 'Situational awareness at the LZ. Security (9-Line Line 6), marking the site (Line 7). Know where the ropes are; know what’s around the casualty.' },
+      { front: 'The count (after a knockdown)', back: 'AVPU—Alert, Verbal, Pain, Unresponsive. Like the ref’s count: how responsive are they? Drives your next move.' },
+      { front: 'Blocking the body shot', back: 'Chest protection. Tension pneumothorax is a body shot to the lung. Needle decompress, chest seal. R in MARCH.' },
+      { front: 'Weight cut', back: 'Dehydration vs. fluid resuscitation. Don’t run them dry. IV access and balanced fluids when indicated—replace what’s lost.' },
+      { front: 'Clinch control', back: 'Securing the airway. Control the head, control the fight. NPA, or when you have to, cric or surgical airway. A in MARCH.' },
+    ];
+
+    function renderStrikersGuide() {
+      const container = document.getElementById('strikers-guide-cards');
+      if (!container) return;
+      container.innerHTML = '';
+      strikersGuide.forEach((entry, i) => {
+        const card = document.createElement('div');
+        card.className = 'flip-card cursor-pointer';
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', 'Flip card ' + (i + 1));
+        card.innerHTML =
+          '<div class="flip-card-inner">' +
+            '<div class="flip-card-front">' +
+              '<p class="text-orange-500 font-semibold text-sm">' + escapeHtml(entry.front) + '</p>' +
+              '<p class="text-slate-500 text-xs mt-1">Tap to flip</p>' +
+            '</div>' +
+            '<div class="flip-card-back">' +
+              '<p class="text-slate-300 text-sm leading-relaxed">' + escapeHtml(entry.back) + '</p>' +
+              '<p class="text-orange-500/80 text-xs mt-2">Tap to flip back</p>' +
+            '</div>' +
+          '</div>';
+        card.addEventListener('click', () => card.classList.toggle('flipped'));
+        card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.classList.toggle('flipped'); } });
+        container.appendChild(card);
+      });
+    }
+
+    // ——— Glossary: searchable, categorized database ———
+    const GLOSSARY_CATEGORIES = { naval_tradition: 'Naval Tradition', marine_fmf: 'Marine Corps FMF', medical_tccc: 'Medical/TCCC', base_life_jbsa: 'Base Life (JBSA)' };
+    const glossaryDB = [
+      { term: 'Head', definition: 'Naval term for bathroom or latrine.', category: 'naval_tradition' },
+      { term: 'Scuttlebutt', definition: 'Shipboard drinking fountain; also means rumor or gossip.', category: 'naval_tradition' },
+      { term: 'Bulkhead', definition: 'Navy term for wall or partition.', category: 'naval_tradition' },
+      { term: 'Deck', definition: 'Navy term for floor.', category: 'naval_tradition' },
+      { term: 'Ladder', definition: 'Navy term for stairs.', category: 'naval_tradition' },
+      { term: 'Rack', definition: 'Navy term for bed or bunk.', category: 'naval_tradition' },
+      { term: 'Geedunk', definition: 'Shipboard snack bar or candy; also junk food.', category: 'naval_tradition' },
+      { term: 'FMF', definition: 'Fleet Marine Force; Navy/Marine operational force.', category: 'marine_fmf' },
+      { term: 'HM', definition: 'Hospital Corpsman; Navy medical technician. Greenside = with Marines.', category: 'marine_fmf' },
+      { term: 'Greenside', definition: 'Duty with Marine Corps units (vs. Blueside, ship/shore Navy).', category: 'marine_fmf' },
+      { term: 'Blueside', definition: 'Navy duty aboard ship or at Navy facilities.', category: 'marine_fmf' },
+      { term: 'Doc', definition: 'Informal term for Corpsman used by Marines.', category: 'marine_fmf' },
+      { term: 'Corpsman', definition: 'Navy Hospital Corpsman; provides medical support to Marines.', category: 'marine_fmf' },
+      { term: 'LZ', definition: 'Landing zone; area for helicopter pick-up (e.g. MEDEVAC).', category: 'marine_fmf' },
+      { term: 'Forward', definition: 'Toward the enemy / front line (e.g. forward deployment).', category: 'marine_fmf' },
+      { term: 'Battalion aid station', definition: 'BAS; forward medical treatment facility.', category: 'marine_fmf' },
+      { term: 'Echelon', definition: 'Level of care (e.g. Role 1, 2, 3); higher echelon = more capability.', category: 'marine_fmf' },
+      { term: 'Role 1', definition: 'First-line care; unit-level (e.g. battalion) immediate care.', category: 'marine_fmf' },
+      { term: 'Role 2', definition: 'Surgical resuscitation; forward surgical capability.', category: 'marine_fmf' },
+      { term: 'Role 3', definition: 'Hospital-level care; definitive treatment.', category: 'marine_fmf' },
+      { term: 'EPW', definition: 'Enemy prisoner of war.', category: 'marine_fmf' },
+      { term: 'MEDEVAC', definition: 'Medical evacuation; moving casualties to higher echelon care.', category: 'medical_tccc', notes: 'When the ref stops the fight — Know when to call for evac. Precedence (A/B/C/D/E) is like how fast the ref steps in.' },
+      { term: '9-Line', definition: 'Standard format for requesting medical evacuation (9 lines of info).', category: 'medical_tccc', notes: 'Ring awareness — Security (Line 6), marking the site (Line 7). Know what\'s around the casualty.' },
+      { term: 'MARCH-PAWS', definition: 'Tactical assessment: Massive hemorrhage, Airway, Respiration, Circulation, Hypothermia, Head-to-toe, Pain, Wounds, Shock.', category: 'medical_tccc', notes: 'Pad work & combos — Drill the sequence until it\'s muscle memory. Order matters.' },
+      { term: 'TCCC', definition: 'Tactical Combat Casualty Care; pre-hospital combat medicine guidelines.', category: 'medical_tccc', notes: 'Your corner — CLS and unit medics have the casualty\'s back until Doc gets there.' },
+      { term: 'CLS', definition: 'Combat Lifesaver; non-medical personnel trained in basic combat first aid.', category: 'medical_tccc' },
+      { term: 'Massive hemorrhage', definition: 'Life-threatening bleeding; address first in MARCH (tourniquet, pack, pressure).', category: 'medical_tccc', notes: 'One shot, one kill — It can drop someone in seconds. Checking the kick — Stop the bleed before it stops the fight.' },
+      { term: 'Airway', definition: 'Ensure patent airway; NPA, cric, or surgical airway as needed. A in MARCH.', category: 'medical_tccc', notes: 'Guard up — Protect the airway first. Clinch control — Control the head; NPA or surgical airway when you have to.' },
+      { term: 'Respiration', definition: 'Chest rise, seal sucking chest wounds, needle decompress if needed. R in MARCH.', category: 'medical_tccc', notes: 'Breathing in the clinch — Feel every breath. Blocking the body shot — Tension pneumothorax; needle decompress, chest seal.' },
+      { term: 'Circulation', definition: 'IV access, fluids, hemorrhage control. C in MARCH.', category: 'medical_tccc', notes: 'Gas tank — When the tank\'s empty they\'re in shock. Keep them perfused.' },
+      { term: 'Hypothermia', definition: 'Prevention and wrap; keep casualty dry and warm. H in MARCH.', category: 'medical_tccc', notes: 'Recovery between rounds — Don\'t let the body shut down between rounds of care.' },
+      { term: 'AVPU', definition: 'Alert, Verbal, Pain, Unresponsive — level of consciousness.', category: 'medical_tccc', notes: 'The count (after a knockdown) — How responsive are they? Drives your next move.' },
+      { term: 'UTM', definition: 'Universal Transverse Mercator; grid system for location (e.g. 9-Line Line 1).', category: 'medical_tccc' },
+      { term: 'Precedence', definition: 'MEDEVAC urgency: A/B Urgent (2 hr), C Priority (4 hr), D Routine (24 hr), E Convenience.', category: 'medical_tccc' },
+      { term: 'Litter', definition: 'Stretcher patient; unable to walk (9-Line Line 5).', category: 'medical_tccc' },
+      { term: 'Ambulatory', definition: 'Patient able to walk (9-Line Line 5).', category: 'medical_tccc' },
+      { term: 'CBRN', definition: 'Chemical, biological, radiological, nuclear (contamination).', category: 'medical_tccc' },
+      { term: 'NBC', definition: 'Nuclear, biological, chemical; often used for 9-Line Line 9.', category: 'medical_tccc' },
+      { term: 'Fluid resuscitation', definition: 'IV fluids to restore perfusion; don\'t run them dry.', category: 'medical_tccc', notes: 'Weight cut — Replace what\'s lost. Don\'t run them dry.' },
+      { term: 'JBSA', definition: 'Joint Base San Antonio; combined Air Force base (Lackland, Randolph, Fort Sam Houston).', category: 'base_life_jbsa' },
+      { term: 'Lackland', definition: 'JBSA-Lackland; where Air Force BMT (basic military training) is conducted.', category: 'base_life_jbsa' },
+      { term: 'Fort Sam Houston', definition: 'JBSA-Fort Sam; home to Army Medical Center and military medical training.', category: 'base_life_jbsa' },
+      { term: 'BMT', definition: 'Basic Military Training; initial entry training (e.g. at Lackland).', category: 'base_life_jbsa' },
+      { term: 'BX', definition: 'Base Exchange; on-base retail store.', category: 'base_life_jbsa' },
+      { term: 'Commissary', definition: 'On-base grocery store.', category: 'base_life_jbsa' },
+      { term: 'DFAC', definition: 'Dining Facility (dining hall / chow hall).', category: 'base_life_jbsa' },
+      { term: 'CDC', definition: 'Child Development Center; on-base childcare.', category: 'base_life_jbsa' },
+    ];
+
+    function fuzzyMatch(text, query) {
+      const t = (text || '').toLowerCase();
+      const q = (query || '').toLowerCase().trim();
+      if (!q) return true;
+      if (t.includes(q)) return true;
+      let i = 0;
+      for (let j = 0; j < t.length && i < q.length; j++) {
+        if (t[j] === q[i]) i++;
+      }
+      return i === q.length;
+    }
+
+    function getTermOfTheDay() {
+      const fmf = glossaryDB.filter(e => e.category === 'marine_fmf');
+      if (!fmf.length) return null;
+      const today = new Date().toDateString();
+      let n = 0;
+      for (let i = 0; i < today.length; i++) n = (n * 31 + today.charCodeAt(i)) >>> 0;
+      return fmf[n % fmf.length];
+    }
+
+    function renderTermOfTheDay() {
+      const totd = getTermOfTheDay();
+      const termEl = document.getElementById('totd-term');
+      const defEl = document.getElementById('totd-def');
+      if (termEl && defEl) {
+        termEl.textContent = totd ? totd.term : '—';
+        defEl.textContent = totd ? totd.definition : '—';
+      }
+    }
+
+    const listEl = document.getElementById('glossary-list');
+    const emptyEl = document.getElementById('glossary-empty');
+    const searchInput = document.getElementById('glossary-search');
+    let glossaryCategory = 'all';
+
+    function renderGlossary() {
+      const q = (searchInput && searchInput.value) ? searchInput.value.trim() : '';
+      let filtered = glossaryDB.filter(e => {
+        if (glossaryCategory !== 'all' && e.category !== glossaryCategory) return false;
+        return fuzzyMatch(e.term + ' ' + e.definition + (e.notes || ''), q);
+      });
+      listEl.innerHTML = '';
+      filtered.forEach(entry => {
+        const li = document.createElement('li');
+        li.className = 'rounded-lg bg-slate-900/80 border border-slate-800 overflow-hidden';
+        let notesHtml = '';
+        if (entry.notes) {
+          notesHtml = '<div class="mt-3 pt-3 border-t border-slate-700"><p class="text-xs font-semibold text-orange-500/90 uppercase tracking-wider mb-1">Notes</p><p class="text-slate-400 text-xs leading-relaxed">' + escapeHtml(entry.notes) + '</p></div>';
+        }
+        li.innerHTML =
+          '<div class="p-3">' +
+            '<span class="font-semibold text-orange-500 text-sm">' + escapeHtml(entry.term) + '</span>' +
+            '<span class="text-slate-500 text-xs ml-2">' + escapeHtml(GLOSSARY_CATEGORIES[entry.category] || entry.category) + '</span>' +
+            '<p class="text-slate-400 text-sm mt-1">' + escapeHtml(entry.definition) + '</p>' +
+            notesHtml +
+          '</div>';
+        listEl.appendChild(li);
+      });
+      emptyEl.classList.toggle('hidden', filtered.length > 0);
+    }
+
+    function initGlossary() {
+      renderTermOfTheDay();
+      document.querySelectorAll('.glossary-cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.glossary-cat-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          glossaryCategory = btn.dataset.category || 'all';
+          renderGlossary();
+        });
+      });
+      if (searchInput) searchInput.addEventListener('input', () => renderGlossary());
+      renderGlossary();
+    }
+  </script>
+</body>
+</html>
