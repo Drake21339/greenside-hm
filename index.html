@@ -20,6 +20,7 @@
     [data-theme="tactical"] { --tw-bg: #0f172a; --tw-surface: #1e293b; --tw-highlight: #f97316; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    main.tab-container { position: relative; z-index: 1; }
     .tab-btn.active { border-bottom-color: #f97316; color: #f97316; }
     @keyframes success-pop { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
     .success-animation { animation: success-pop 0.5s ease-out; }
@@ -131,12 +132,13 @@
         <button type="button" class="tab-btn active flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="home">Home</button>
         <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="march">MARCH-PAWS</button>
         <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="medevac">9-Line</button>
+        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="radiostress">Radio Stress</button>
         <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="muaythai">Muay Thai</button>
         <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="audio">Voice Memos</button>
         <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="glossary">Glossary</button>
       </nav>
 
-      <main class="flex-1 overflow-auto px-4 py-4">
+      <main class="tab-container flex-1 overflow-auto px-4 py-4">
         <!-- Home (landing) -->
         <section id="tab-home" class="tab-content active" aria-labelledby="home-label">
           <h2 id="home-label" class="sr-only">Home</h2>
@@ -222,6 +224,81 @@
           </div>
         </section>
 
+        <!-- Radio Stress Test -->
+        <section id="tab-radiostress" class="tab-content" aria-labelledby="radiostress-label">
+          <h2 id="radiostress-label" class="sr-only">Radio Stress Test</h2>
+          <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+            <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
+            <p class="text-slate-400 text-xs leading-relaxed">Time-pressure 9-Line drill. Pick a Comms Speed, get a random scenario, then transmit Lines 1–9 before the clock hits zero. Battle Speed (0:25) matches real-world launch requirement. Your attempts are logged so you can track your best times.</p>
+          </div>
+
+          <div id="radio-stress-setup" class="space-y-4">
+            <p class="text-slate-300 text-sm font-medium">Comms Speed</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" class="radio-speed-btn py-3 px-3 rounded-lg border border-slate-600 bg-slate-800/80 text-slate-200 text-sm font-medium hover:border-orange-500 hover:bg-orange-500/10" data-seconds="120">Practice (2:00)</button>
+              <button type="button" class="radio-speed-btn py-3 px-3 rounded-lg border border-slate-600 bg-slate-800/80 text-slate-200 text-sm font-medium hover:border-orange-500 hover:bg-orange-500/10" data-seconds="60">Standard (1:00)</button>
+              <button type="button" class="radio-speed-btn py-3 px-3 rounded-lg border border-slate-600 bg-slate-800/80 text-slate-200 text-sm font-medium hover:border-orange-500 hover:bg-orange-500/10" data-seconds="30">Tactical (0:30)</button>
+              <button type="button" class="radio-speed-btn py-3 px-3 rounded-lg border border-slate-600 bg-slate-800/80 text-slate-200 text-sm font-medium hover:border-orange-500 hover:bg-orange-500/10" data-seconds="25">Battle Speed (0:25)</button>
+            </div>
+            <p id="radio-stress-selected" class="text-orange-500 text-xs hidden">Selected: <span id="radio-stress-selected-label"></span></p>
+            <button type="button" id="radio-stress-start" class="w-full py-3 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400 disabled:opacity-50" disabled>Start drill</button>
+          </div>
+
+          <div id="radio-stress-predrill" class="hidden space-y-4">
+            <div class="p-4 rounded-lg bg-slate-900/80 border border-orange-500/40">
+              <p class="text-orange-500 text-xs font-semibold uppercase tracking-wider mb-2">Story</p>
+              <p id="radio-stress-story" class="text-slate-300 text-sm leading-relaxed"></p>
+            </div>
+            <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-700">
+              <p class="text-orange-500 text-xs font-semibold uppercase tracking-wider mb-2">Raw Data</p>
+              <div id="radio-stress-raw" class="font-mono text-xs text-slate-400 space-y-1"></div>
+            </div>
+            <button type="button" id="radio-stress-transmit" class="w-full py-3 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400">Transmit</button>
+          </div>
+
+          <div id="radio-stress-drill" class="hidden space-y-4">
+            <div class="flex justify-center">
+              <p id="radio-stress-timer" class="text-4xl font-mono font-bold text-orange-500 tabular-nums">0:25</p>
+            </div>
+            <form id="radio-stress-form" class="space-y-2">
+              <div><label class="block text-xs text-slate-500 mb-0.5">Line 1</label><input type="text" id="stress-line1" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 text-sm" /></div>
+              <div><label class="block text-xs text-slate-500 mb-0.5">Line 2</label><input type="text" id="stress-line2" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 text-sm" /></div>
+              <div><label class="block text-xs text-slate-500 mb-0.5">Line 3</label><input type="text" id="stress-line3" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 text-sm" /></div>
+              <div><label class="block text-xs text-slate-500 mb-0.5">Line 4</label><input type="text" id="stress-line4" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 text-sm" /></div>
+              <div><label class="block text-xs text-slate-500 mb-0.5">Line 5</label><input type="text" id="stress-line5" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 text-sm" /></div>
+              <div><label class="block text-xs text-slate-500 mb-0.5">Line 6</label><input type="text" id="stress-line6" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 text-sm" /></div>
+              <div><label class="block text-xs text-slate-500 mb-0.5">Line 7</label><input type="text" id="stress-line7" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 text-sm" /></div>
+              <div><label class="block text-xs text-slate-500 mb-0.5">Line 8</label><input type="text" id="stress-line8" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 text-sm" /></div>
+              <div><label class="block text-xs text-slate-500 mb-0.5">Line 9</label><input type="text" id="stress-line9" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 text-sm" /></div>
+            </form>
+            <button type="button" id="radio-stress-submit" class="w-full py-3 rounded-lg bg-orange-500 text-slate-950 font-semibold text-sm hover:bg-orange-400">Submit transmission</button>
+          </div>
+
+          <div id="radio-stress-result" class="hidden space-y-4">
+            <div id="radio-stress-jammed" class="hidden p-4 rounded-lg bg-red-950/50 border border-red-500/50 text-center">
+              <p class="text-red-400 font-semibold text-lg">Transmission Jammed</p>
+              <p class="text-slate-400 text-sm mt-1">Time ran out. Try again.</p>
+            </div>
+            <div id="radio-stress-success" class="hidden p-4 rounded-lg bg-slate-900/80 border border-orange-500/40">
+              <p class="text-orange-500 font-semibold">Transmission received</p>
+              <p id="radio-stress-finish-time" class="text-slate-300 text-sm mt-1"></p>
+              <div id="radio-stress-compare" class="mt-3 text-xs text-slate-400 space-y-1"></div>
+            </div>
+            <button type="button" id="radio-stress-again" class="w-full py-2 rounded-lg border border-orange-500 text-orange-500 text-sm font-medium hover:bg-orange-500/10">Drill again</button>
+          </div>
+
+          <div id="radio-stress-personal-best" class="mt-6 pt-4 border-t border-slate-700">
+            <p class="text-orange-500 font-medium text-xs mb-2">Personal best (passed drills)</p>
+            <div id="radio-stress-best-list" class="text-slate-400 text-sm space-y-1"></div>
+            <p id="radio-stress-best-empty" class="text-slate-500 text-xs">Complete a drill to see your best times.</p>
+          </div>
+          <div id="radio-stress-recent" class="mt-4 pt-4 border-t border-slate-700">
+            <p class="text-orange-500 font-medium text-xs mb-2">Getting faster — recent attempts</p>
+            <div id="radio-stress-recent-list" class="text-slate-400 text-sm space-y-1.5"></div>
+            <p id="radio-stress-recent-empty" class="text-slate-500 text-xs">No attempts yet.</p>
+          </div>
+        </section>
+
         <!-- Muay Thai streak -->
         <section id="tab-muaythai" class="tab-content" aria-labelledby="muaythai-label">
           <h2 id="muaythai-label" class="sr-only">Muay Thai streak</h2>
@@ -254,7 +331,7 @@
         </section>
 
         <!-- Glossary (searchable, categorized) -->
-        <section id="tab-glossary" class="tab-content" aria-labelledby="glossary-label">
+        <section id="tab-glossary" class="tab-content relative z-[1]" aria-labelledby="glossary-label">
           <h2 id="glossary-label" class="sr-only">Glossary</h2>
           <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
             <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
@@ -503,6 +580,7 @@
       loadAudioList();
       initMedevac();
       initMuayThai();
+      initRadioStress();
       initAudio();
       initGlossary();
       renderDailyDeckLog();
@@ -519,6 +597,8 @@
           btn.classList.add('active');
           const panel = document.getElementById('tab-' + id);
           if (panel) { panel.classList.remove('hidden'); panel.classList.add('active'); }
+          if (id === 'home' && typeof renderTermOfTheDay === 'function') renderTermOfTheDay();
+          if (id === 'glossary' && typeof renderGlossary === 'function') renderGlossary();
         });
       });
     }
@@ -941,6 +1021,246 @@
       await upsertUserData('medical', content);
     });
 
+    // ——— Radio Stress Test ———
+    const RADIO_STRESS_SPEEDS = [
+      { seconds: 120, label: 'Practice (2:00)' },
+      { seconds: 60, label: 'Standard (1:00)' },
+      { seconds: 30, label: 'Tactical (0:30)' },
+      { seconds: 25, label: 'Battle Speed (0:25)' }
+    ];
+    let radioStressScenarios = [];
+    let radioStressTimeLimit = 0;
+    let radioStressStartTime = 0;
+    let radioStressTimerId = null;
+    let radioStressCurrentScenario = null;
+    let radioStressExpected = [];
+
+    function detailsToExpected(details) {
+      if (!details) return [];
+      const n = (s) => (s || '').toLowerCase().trim();
+      const line3 = n(details.line3);
+      let L3 = details.line3 || '';
+      if (line3.includes('urgent') && line3.includes('surgical')) L3 = (line3.match(/\d+/) || ['1'])[0] + 'B';
+      else if (line3.includes('urgent')) L3 = (line3.match(/\d+/) || ['1'])[0] + 'A';
+      else if (line3.includes('priority')) L3 = (line3.match(/\d+/) || ['1'])[0] + 'C';
+      else if (line3.includes('routine')) L3 = (line3.match(/\d+/) || ['1'])[0] + 'D';
+      else if (line3.includes('convenience')) L3 = (line3.match(/\d+/) || ['1'])[0] + 'E';
+      const line4 = n(details.line4);
+      let L4 = 'A';
+      if (line4.includes('armed escort') || line4 === 'x') L4 = 'X';
+      else if (line4.includes('hoist') || line4.includes('stokes')) L4 = 'B';
+      else if (line4.includes('extraction')) L4 = 'C';
+      else if (line4.includes('ventilator')) L4 = 'D';
+      const line5 = n(details.line5);
+      let L5 = details.line5 || '';
+      if (line5.includes('litter') && !line5.includes('ambulatory')) L5 = 'L' + (line5.match(/\d+/) || ['1'])[0];
+      else if (line5.includes('ambulatory') && !line5.includes('litter')) L5 = 'A' + (line5.match(/\d+/) || ['1'])[0];
+      else if (line5.includes('litter') && line5.includes('ambulatory')) L5 = 'L' + (line5.match(/\d+/) || ['1'])[0] + ' BREAK A' + (line5.match(/\d+/g) || ['0'])[1];
+      const line6 = n(details.line6);
+      let L6 = details.line6 || '';
+      if (line6.includes('no enemy') || line6.includes('secure') || line6 === 'n') L6 = 'N';
+      else if (line6.includes('possible') || line6 === 'p') L6 = 'P';
+      else if (line6.includes('enemy') && line6.includes('caution') || line6 === 'e') L6 = 'E';
+      else if (line6.includes('escort') || line6.includes('armed') || line6 === 'x') L6 = 'X';
+      const line7 = n(details.line7);
+      let L7 = 'D';
+      if (line7.includes('panel') || line7.includes('vs-17')) L7 = 'A';
+      else if (line7.includes('pyrotechnic')) L7 = 'B';
+      else if (line7.includes('smoke')) L7 = 'C';
+      else if (line7.includes('signal') || line7.includes('light') || line7.includes('other')) L7 = 'E';
+      const line8 = n(details.line8);
+      let L8 = 'A';
+      if (line8.includes('us civilian') || line8.includes('civilian')) L8 = 'B';
+      else if (line8.includes('non-us military')) L8 = 'C';
+      else if (line8.includes('non-us civilian') || line8.includes('non-us citizen') || line8.includes('citizen')) L8 = 'D';
+      else if (line8.includes('epw') || line8.includes('enemy')) L8 = 'E';
+      return [
+        (details.line1 || '').trim(),
+        (details.line2 || '').trim(),
+        L3,
+        L4,
+        L5,
+        L6,
+        L7,
+        L8,
+        (details.line9 || '').trim()
+      ];
+    }
+
+    function radioStressMatch(her, expected) {
+      const h = (her || '').toLowerCase().replace(/\s+/g, ' ').trim();
+      const e = (expected || '').toLowerCase().replace(/\s+/g, ' ').trim();
+      if (!e) return true;
+      if (h === e) return true;
+      if (e.length <= 2 && h.includes(e)) return true;
+      if (h.includes(e) || e.includes(h)) return true;
+      return false;
+    }
+
+    async function loadRadioStressScenarios() {
+      if (radioStressScenarios.length) return radioStressScenarios;
+      try {
+        const r = await fetch('/data/medevacScenarios.json');
+        if (r.ok) radioStressScenarios = await r.json();
+      } catch (_) {}
+      return radioStressScenarios;
+    }
+
+    function showRadioStressScreen(name) {
+      ['radio-stress-setup', 'radio-stress-predrill', 'radio-stress-drill', 'radio-stress-result'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('hidden', id !== name);
+      });
+      if (name === 'radio-stress-result') {
+        document.getElementById('radio-stress-jammed').classList.add('hidden');
+        document.getElementById('radio-stress-success').classList.add('hidden');
+      }
+    }
+
+    function radioStressHaptic() {
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100, 50, 100, 50]);
+    }
+
+    function initRadioStress() {
+      document.querySelectorAll('.radio-speed-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.radio-speed-btn').forEach(b => b.classList.remove('border-orange-500', 'bg-orange-500/10'));
+          btn.classList.add('border-orange-500', 'bg-orange-500/10');
+          radioStressTimeLimit = parseInt(btn.dataset.seconds, 10);
+          const label = document.getElementById('radio-stress-selected-label');
+          if (label) label.textContent = RADIO_STRESS_SPEEDS.find(s => s.seconds === radioStressTimeLimit)?.label || '';
+          document.getElementById('radio-stress-selected').classList.remove('hidden');
+          document.getElementById('radio-stress-start').disabled = false;
+        });
+      });
+
+      document.getElementById('radio-stress-start').addEventListener('click', async () => {
+        const list = await loadRadioStressScenarios();
+        if (!list.length) { alert('Could not load scenarios.'); return; }
+        radioStressCurrentScenario = list[Math.floor(Math.random() * list.length)];
+        radioStressExpected = detailsToExpected(radioStressCurrentScenario.details);
+        document.getElementById('radio-stress-story').textContent = radioStressCurrentScenario.story || '—';
+        const raw = document.getElementById('radio-stress-raw');
+        raw.innerHTML = '';
+        const d = radioStressCurrentScenario.details || {};
+        [1,2,3,4,5,6,7,8,9].forEach(i => {
+          const p = document.createElement('p');
+          p.className = 'text-slate-300 text-sm';
+          p.textContent = 'Line ' + i + ': ' + (d['line' + i] || '—');
+          raw.appendChild(p);
+        });
+        showRadioStressScreen('radio-stress-predrill');
+      });
+
+      document.getElementById('radio-stress-transmit').addEventListener('click', () => {
+        [1,2,3,4,5,6,7,8,9].forEach(i => { const el = document.getElementById('stress-line' + i); if (el) el.value = ''; });
+        showRadioStressScreen('radio-stress-drill');
+        radioStressStartTime = Date.now();
+        let remaining = radioStressTimeLimit;
+        let lastHapticSecond = -1;
+        const timerEl = document.getElementById('radio-stress-timer');
+        const isBattle = radioStressTimeLimit === 25;
+        function tick() {
+          remaining = Math.max(0, radioStressTimeLimit - Math.floor((Date.now() - radioStressStartTime) / 1000));
+          const m = Math.floor(remaining / 60);
+          const s = remaining % 60;
+          if (timerEl) timerEl.textContent = (m ? m + ':' : '0:') + (s < 10 ? '0' : '') + s;
+          if (isBattle && remaining > 0 && remaining <= 5 && Math.floor(remaining) !== lastHapticSecond) {
+            lastHapticSecond = Math.floor(remaining);
+            radioStressHaptic();
+          }
+          if (remaining <= 0) {
+            clearInterval(radioStressTimerId);
+            radioStressTimerId = null;
+            showRadioStressScreen('radio-stress-result');
+            document.getElementById('radio-stress-jammed').classList.remove('hidden');
+            if (userId) supabase.from('medevac_logs').insert({ user_id: userId, scenario_id: radioStressCurrentScenario?.id || 0, scenario_title: radioStressCurrentScenario?.title, time_limit_seconds: radioStressTimeLimit, passed: false, answers: null }).then(() => refreshRadioStressPersonalBest());
+            else refreshRadioStressPersonalBest();
+            return;
+          }
+        }
+        tick();
+        radioStressTimerId = setInterval(tick, 500);
+      });
+
+      document.getElementById('radio-stress-submit').addEventListener('click', () => {
+        if (radioStressTimerId) clearInterval(radioStressTimerId);
+        radioStressTimerId = null;
+        const finishMs = Date.now() - radioStressStartTime;
+        const finishSec = Math.round(finishMs / 1000);
+        const her = [1,2,3,4,5,6,7,8,9].map(i => (document.getElementById('stress-line' + i)?.value || '').trim());
+        const correct = her.every((h, i) => radioStressMatch(h, radioStressExpected[i]));
+        showRadioStressScreen('radio-stress-result');
+        document.getElementById('radio-stress-success').classList.remove('hidden');
+        document.getElementById('radio-stress-finish-time').textContent = 'Time: ' + finishSec + 's (limit ' + radioStressTimeLimit + 's)';
+        const compare = document.getElementById('radio-stress-compare');
+        compare.innerHTML = '';
+        her.forEach((h, i) => {
+          const ok = radioStressMatch(h, radioStressExpected[i]);
+          const p = document.createElement('p');
+          p.textContent = 'Line ' + (i + 1) + ': ' + (ok ? '✓' : 'expected «' + (radioStressExpected[i] || '') + '»') + ' — ' + (h || '—');
+          p.classList.add(ok ? 'text-green-400/80' : 'text-amber-400/80');
+          compare.appendChild(p);
+        });
+        if (userId) supabase.from('medevac_logs').insert({ user_id: userId, scenario_id: radioStressCurrentScenario?.id || 0, scenario_title: radioStressCurrentScenario?.title, time_limit_seconds: radioStressTimeLimit, finish_time_seconds: finishSec, passed: correct, answers: her }).then(() => refreshRadioStressPersonalBest());
+        else refreshRadioStressPersonalBest();
+      });
+
+      document.getElementById('radio-stress-again').addEventListener('click', () => {
+        const jammedSub = document.querySelector('#radio-stress-jammed p:last-child');
+        if (jammedSub) jammedSub.textContent = 'Time ran out. Try again.';
+        showRadioStressScreen('radio-stress-setup');
+      });
+
+      const RADIO_STRESS_TIER_LABELS = { 120: 'Practice (2:00)', 60: 'Standard (1:00)', 30: 'Tactical (0:30)', 25: 'Battle Speed (0:25)' };
+      function formatRadioStressDate(iso) {
+        const d = new Date(iso);
+        const today = new Date();
+        if (d.toDateString() === today.toDateString()) return 'Today';
+        const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+        if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+      async function refreshRadioStressPersonalBest() {
+        const listEl = document.getElementById('radio-stress-best-list');
+        const emptyEl = document.getElementById('radio-stress-best-empty');
+        const recentListEl = document.getElementById('radio-stress-recent-list');
+        const recentEmptyEl = document.getElementById('radio-stress-recent-empty');
+        if (!userId || !listEl) return;
+        const { data: rows } = await supabase.from('medevac_logs').select('time_limit_seconds, finish_time_seconds').eq('user_id', userId).eq('passed', true).not('finish_time_seconds', 'is', null);
+        const byLimit = {};
+        (rows || []).forEach(r => {
+          const t = r.time_limit_seconds;
+          if (!byLimit[t] || r.finish_time_seconds < byLimit[t]) byLimit[t] = r.finish_time_seconds;
+        });
+        listEl.innerHTML = '';
+        [25, 30, 60, 120].forEach(sec => {
+          if (byLimit[sec]) {
+            const p = document.createElement('p');
+            p.className = 'text-slate-200 text-sm';
+            p.textContent = RADIO_STRESS_TIER_LABELS[sec] + ': ' + byLimit[sec] + 's';
+            listEl.appendChild(p);
+          }
+        });
+        if (emptyEl) emptyEl.classList.toggle('hidden', Object.keys(byLimit).length > 0);
+        if (recentListEl && recentEmptyEl) {
+          const { data: recent } = await supabase.from('medevac_logs').select('created_at, time_limit_seconds, finish_time_seconds, passed').eq('user_id', userId).order('created_at', { ascending: false }).limit(15);
+          recentListEl.innerHTML = '';
+          (recent || []).forEach(r => {
+            const p = document.createElement('p');
+            p.className = 'text-slate-300 text-sm flex flex-wrap items-baseline gap-x-2 gap-y-0.5';
+            const tier = RADIO_STRESS_TIER_LABELS[r.time_limit_seconds] || r.time_limit_seconds + 's';
+            const date = formatRadioStressDate(r.created_at);
+            const result = r.passed && r.finish_time_seconds != null ? r.finish_time_seconds + 's ✓' : 'Jammed';
+            p.innerHTML = '<span class="text-slate-500">' + date + '</span> <span class="text-orange-500/90">' + tier + '</span> <span class="' + (r.passed ? 'text-green-400/80' : 'text-red-400/80') + '">' + result + '</span>';
+            recentListEl.appendChild(p);
+          });
+          recentEmptyEl.classList.toggle('hidden', (recent || []).length > 0);
+        }
+      }
+      refreshRadioStressPersonalBest();
+    }
+
     // ——— Muay Thai ↔ user_data (muay-thai) ———
     function todayStr() { const d = new Date(); return d.toISOString().slice(0, 10); }
     function isYesterday(dateStr) {
@@ -1230,12 +1550,14 @@
     }
 
     function getTermOfTheDay() {
-      const fmf = glossaryDB.filter(e => e.category === 'marine_fmf');
-      if (!fmf.length) return null;
+      const pool = glossaryDB.filter(e => e.category === 'marine_fmf').length
+        ? glossaryDB.filter(e => e.category === 'marine_fmf')
+        : glossaryDB;
+      if (!pool.length) return null;
       const today = new Date().toDateString();
       let n = 0;
       for (let i = 0; i < today.length; i++) n = (n * 31 + today.charCodeAt(i)) >>> 0;
-      return fmf[n % fmf.length];
+      return pool[n % pool.length];
     }
 
     function renderTermOfTheDay() {
@@ -1344,10 +1666,13 @@
       if (factEl) factEl.textContent = '—';
       try {
         const { text, source } = await getOrCreateDailyFact();
-        if (factEl) factEl.textContent = text || '—';
+        let display = text || '';
+        if (!display && NAVY_FACTS.length) display = NAVY_FACTS[Math.floor(Math.random() * NAVY_FACTS.length)];
+        if (factEl) factEl.textContent = display || '—';
         if (factEl && source) factEl.setAttribute('title', 'Source: ' + source);
       } catch (_) {
-        if (factEl) factEl.textContent = 'Could not load today\'s fact.';
+        const fallback = NAVY_FACTS.length ? NAVY_FACTS[Math.floor(Math.random() * NAVY_FACTS.length)] : 'Could not load today\'s fact.';
+        if (factEl) factEl.textContent = fallback;
       }
       if (loadingEl) loadingEl.classList.add('hidden');
     }
@@ -1387,16 +1712,22 @@
 
     function initGlossary() {
       renderTermOfTheDay();
+      const glossaryPanel = document.getElementById('tab-glossary');
       const searchInput = document.getElementById('glossary-search');
-      document.querySelectorAll('.glossary-cat-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+      if (glossaryPanel) {
+        glossaryPanel.addEventListener('click', (e) => {
+          const btn = e.target && e.target.closest('.glossary-cat-btn');
+          if (!btn) return;
           document.querySelectorAll('.glossary-cat-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           glossaryCategory = btn.dataset.category || 'all';
           renderGlossary();
         });
-      });
-      if (searchInput) searchInput.addEventListener('input', () => renderGlossary());
+      }
+      if (searchInput) {
+        searchInput.addEventListener('input', () => renderGlossary());
+        searchInput.addEventListener('keyup', () => renderGlossary());
+      }
       renderGlossary();
     }
   </script>
