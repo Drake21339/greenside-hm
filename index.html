@@ -32,11 +32,55 @@
     .flip-card-front { background: linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%); border: 1px solid rgb(51,65,85); }
     .flip-card-back { background: linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.95) 100%); border: 1px solid rgb(249,115,22); transform: rotateY(180deg); }
     .glossary-cat-btn.active { color: rgb(249,115,22); border-color: rgb(249,115,22); background: rgba(249,115,22,0.1); }
+    /* FMF-style pin and dropdown */
+    .fmf-pin {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 50%, #1e293b 100%);
+      border: 2px solid rgba(249,115,22,0.5);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .fmf-pin:hover { transform: scale(1.06); box-shadow: 0 4px 16px rgba(249,115,22,0.2); }
+    .fmf-pin.menu-open {
+      transform: scale(1.1);
+      border-color: rgb(249,115,22);
+      box-shadow: 0 4px 20px rgba(249,115,22,0.3);
+    }
+    .fmf-dropdown {
+      position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(6px);
+      min-width: 200px;
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid rgba(249,115,22,0.3);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      opacity: 0; visibility: hidden; transform: translateX(-50%) translateY(0) scale(0.96);
+      transition: opacity 0.2s ease, visibility 0.2s, transform 0.2s ease;
+      z-index: 30;
+      overflow: hidden;
+    }
+    .fmf-dropdown.open {
+      opacity: 1; visibility: visible;
+      transform: translateX(-50%) translateY(6px) scale(1);
+    }
+    .fmf-dropdown .menu-item {
+      display: block; width: 100%;
+      padding: 10px 16px;
+      text-align: left; font-size: 0.875rem;
+      color: rgb(203,213,225);
+      border: none; background: transparent;
+      cursor: pointer; transition: background 0.15s, color 0.15s;
+      border-bottom: 1px solid rgba(51,65,85,0.6);
+    }
+    .fmf-dropdown .menu-item:last-child { border-bottom: none; }
+    .fmf-dropdown .menu-item:hover { background: rgba(249,115,22,0.12); color: rgb(249,115,22); }
+    .fmf-dropdown .menu-item.active { background: rgba(249,115,22,0.15); color: rgb(249,115,22); font-weight: 600; }
   </style>
   <!-- Set window.SUPABASE_URL and window.SUPABASE_ANON_KEY before app loads (e.g. supabase/config.js) -->
   <script src="supabase/config.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen antialiased" data-theme="tactical">
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900/50" data-theme="tactical">
   <div id="app-root" class="max-w-lg mx-auto min-h-screen flex flex-col pb-24">
     <!-- Auth screen (shown when not signed in) -->
     <div id="auth-screen" class="flex flex-col min-h-screen justify-center px-6 py-8">
@@ -114,48 +158,58 @@
 
     <!-- Dashboard (shown when signed in) -->
     <div id="dashboard" class="hidden flex flex-col min-h-screen">
-      <header class="sticky top-0 z-20 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 py-3 flex items-center justify-between">
-        <div>
-          <h1 class="text-lg font-semibold text-orange-500 tracking-tight">Greenside HM</h1>
-          <p class="text-xs text-slate-400">Training Dashboard</p>
+      <header class="sticky top-0 z-20 bg-slate-950/98 backdrop-blur-sm border-b border-slate-800/80 px-4 py-3 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h1 class="text-base font-semibold text-orange-500 tracking-tight truncate">Greenside HM</h1>
+          <p class="text-xs text-slate-500">Training Dashboard</p>
         </div>
-        <div class="flex items-center gap-2">
-          <span id="sync-indicator" class="inline-flex items-center gap-1.5 text-xs text-slate-500" title="Sync status">
-            <span id="sync-dot" class="w-2 h-2 rounded-full bg-slate-600"></span>
-            <span id="sync-label">—</span>
+        <div class="relative flex-shrink-0" aria-label="Open menu">
+          <button type="button" id="fmf-pin-btn" class="fmf-pin" aria-expanded="false" aria-haspopup="true" aria-label="Menu">
+            <svg class="w-7 h-7 text-orange-500/95" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="10" r="4"/>
+              <path d="M12 14v6M10 20h4"/>
+              <circle cx="12" cy="12" r="9"/>
+            </svg>
+          </button>
+          <div id="fmf-dropdown" class="fmf-dropdown" role="menu" aria-orientation="vertical">
+            <button type="button" class="menu-item tab-btn active" role="menuitem" data-tab="home">Home</button>
+            <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="march">MARCH-PAWS</button>
+            <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="medevac">9-Line Medevac</button>
+            <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="radiostress" title="Timed 9-Line drill">Radio Stress</button>
+            <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="muaythai">Muay Thai</button>
+            <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="audio">Voice Memos</button>
+            <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="glossary">Glossary</button>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="sync-indicator" class="inline-flex items-center gap-1.5 text-xs text-slate-500 truncate" title="Sync status">
+            <span id="sync-dot" class="w-2 h-2 rounded-full bg-slate-600 flex-shrink-0"></span>
+            <span id="sync-label" class="truncate">—</span>
           </span>
-          <button type="button" id="btn-signout" class="text-xs text-slate-400 hover:text-slate-200">Sign out</button>
+          <button type="button" id="btn-signout" class="text-xs text-slate-400 hover:text-slate-200 flex-shrink-0">Sign out</button>
         </div>
       </header>
 
-      <nav class="flex border-b border-slate-800 bg-slate-900/50 shrink-0 overflow-x-auto" aria-label="Sections">
-        <button type="button" class="tab-btn active flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="home">Home</button>
-        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="march">MARCH-PAWS</button>
-        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="medevac">9-Line</button>
-        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="radiostress">Radio Stress</button>
-        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="muaythai">Muay Thai</button>
-        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="audio">Voice Memos</button>
-        <button type="button" class="tab-btn flex-1 min-w-0 py-3 px-2 text-xs font-medium text-slate-400 border-b-2 border-transparent transition-colors whitespace-nowrap" data-tab="glossary">Glossary</button>
-      </nav>
-
-      <main class="tab-container flex-1 overflow-auto px-4 py-4">
+      <main class="tab-container flex-1 overflow-auto px-4 py-6">
         <!-- Home (landing) -->
         <section id="tab-home" class="tab-content active" aria-labelledby="home-label">
           <h2 id="home-label" class="sr-only">Home</h2>
-          <p class="text-xl font-semibold text-orange-500 mb-4">Welcome back.</p>
-          <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
+          <p class="text-xl font-semibold text-orange-500 mb-5 tracking-tight">Welcome back.</p>
+          <div class="mb-5 p-4 rounded-xl bg-slate-800/60 border border-slate-700/80">
             <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
             <p class="text-slate-400 text-xs leading-relaxed">Your training hub: drill MARCH-PAWS, practice 9-Line, log Muay Thai, record voice memos, and look up Navy/Marine terms. Use the tabs above to jump to each section.</p>
           </div>
-          <div id="term-of-the-day-card" class="mb-4 p-4 rounded-lg bg-slate-900/80 border border-orange-500/40">
+          <div id="term-of-the-day-card" class="mb-5 p-4 rounded-xl bg-slate-900/70 border border-orange-500/30">
             <p class="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-1">Term of the Day</p>
             <p id="totd-term" class="font-semibold text-slate-100 text-sm">—</p>
-            <p id="totd-def" class="text-slate-400 text-xs mt-1">—</p>
+            <p id="totd-def" class="text-slate-400 text-xs mt-1 leading-relaxed">—</p>
           </div>
-          <div id="daily-deck-log-card" class="p-4 rounded-lg bg-slate-900/80 border border-slate-700">
+          <div id="daily-deck-log-card" class="p-4 rounded-xl bg-slate-900/70 border border-slate-700/80">
             <p class="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-2">Daily Deck Log</p>
             <p id="daily-deck-log-fact" class="text-slate-300 text-sm leading-relaxed">—</p>
             <p id="daily-deck-log-loading" class="text-slate-500 text-xs mt-2 hidden">Loading…</p>
+            <p class="text-slate-500 text-xs mt-2">Uses the <code class="text-slate-400">daily_facts</code> table. If blank, run the migration in Supabase (SQL Editor) and tap Retry.</p>
+            <button type="button" id="daily-deck-log-retry" class="mt-2 py-1.5 px-3 rounded border border-slate-600 text-slate-400 text-xs hover:bg-slate-800">Retry</button>
           </div>
         </section>
 
@@ -194,7 +248,8 @@
           <h2 id="medevac-label" class="sr-only">9-Line Medevac Request</h2>
           <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
             <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
-            <p class="text-slate-400 text-xs leading-relaxed">The 9-Line MEDEVAC is the US military / NATO standard for requesting medical evacuation (ref: TC 3-21.76, TCCC). Lines 1–5 launch the aircraft (transmit in ~25 sec); 6–9 can follow en route. Fill each line, generate your summary, then practice reading it over the radio.</p>
+            <p class="text-slate-400 text-xs leading-relaxed">The 9-Line MEDEVAC is the US military / NATO standard for requesting medical evacuation (ref: TC 3-21.76, TCCC). Lines 1–5 launch the aircraft (transmit in ~25 sec); 6–9 can follow en route.</p>
+            <p class="text-slate-300 text-xs leading-relaxed mt-2"><strong>How to use:</strong> Fill each line below (or use <em>Load random scenario</em> to pre-fill a practice case). Then tap <strong>Generate Summary</strong> to get the formatted 9-line block and the <strong>phonetic radio readout</strong>—practice reading that over the radio. For a timed drill under pressure, use the <strong>Radio Stress</strong> tab.</p>
           </div>
           <form id="medevac-form" class="space-y-4">
             <div><label for="line1" class="block text-xs font-medium text-slate-400 mb-1">Line 1 — Location of pickup site</label><input type="text" id="line1" name="line1" placeholder="8-digit grid + zone (e.g. EG 3234 5544)" class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-orange-500 text-sm" /></div>
@@ -220,7 +275,11 @@
           <button type="button" id="medevac-copy" class="mt-2 w-full py-2 rounded-lg border border-orange-500 text-orange-500 text-sm font-medium hover:bg-orange-500/10 hidden">Copy to clipboard</button>
           <div class="mt-4 pt-4 border-t border-slate-700">
             <p class="text-orange-500 font-medium text-xs mb-2">Practice scenario</p>
-            <button type="button" id="medevac-scenario" class="w-full py-2 rounded-lg border border-slate-600 text-slate-300 text-sm hover:bg-slate-800">Load random scenario</button>
+            <p class="text-slate-500 text-xs mb-2">Pre-fills the form with a random scenario. Then tap <strong>Generate Summary</strong> above and practice the phonetic readout over the radio.</p>
+            <div class="flex gap-2">
+              <button type="button" id="medevac-scenario" class="flex-1 py-2 rounded-lg border border-slate-600 text-slate-300 text-sm hover:bg-slate-800">Load random scenario</button>
+              <button type="button" id="medevac-reset" class="flex-1 py-2 rounded-lg border border-slate-600 text-slate-400 text-sm hover:bg-slate-800">Reset scenario</button>
+            </div>
           </div>
         </section>
 
@@ -257,7 +316,8 @@
           </div>
 
           <div id="radio-stress-drill" class="hidden space-y-4">
-            <div class="flex justify-center">
+            <div class="sticky top-0 z-10 py-3 rounded-lg bg-slate-950/95 border border-orange-500/40 text-center">
+              <p class="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-0.5">Time remaining</p>
               <p id="radio-stress-timer" class="text-4xl font-mono font-bold text-orange-500 tabular-nums">0:25</p>
             </div>
             <form id="radio-stress-form" class="space-y-2">
@@ -335,7 +395,7 @@
           <h2 id="glossary-label" class="sr-only">Glossary</h2>
           <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
             <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
-            <p class="text-slate-400 text-xs leading-relaxed">Translate Navy ↔ Marine lingo. Sailors say “head,” Marines say “latrine”; ship terms, FMF slang, TCCC/medical, and base life. Search or pick a category below.</p>
+            <p class="text-slate-400 text-xs leading-relaxed">Translate Navy ↔ Marine lingo. Sailors say “head,” Marines say “latrine”; Where usage differs we show both (e.g. Navy: Head ↔ Marine: Latrine). Not every term has a pair. Search or pick a category below.</p>
           </div>
           <div class="mb-4">
             <label for="glossary-search" class="sr-only">Search glossary</label>
@@ -570,12 +630,22 @@
     // ——— Dashboard (only after auth) ———
     let userId = null;
 
-    function initDashboard(uid) {
+    const MEDICAL_BASE_STATE = { march_paws: {}, medevac: { lines: ['', '', '', 'A', '', '', 'A', 'A', ''] } };
+
+    async function resetUserToBaseState() {
+      if (!userId) return;
+      try {
+        await supabase.from('user_data').upsert({ user_id: userId, category: 'medical', content: MEDICAL_BASE_STATE, updated_at: new Date().toISOString() }, { onConflict: 'user_id,category' });
+      } catch (_) {}
+    }
+
+    async function initDashboard(uid) {
       userId = uid;
+      await resetUserToBaseState();
       initTabs();
       initMarchPaws();
-      loadMarchPaws();
-      loadMedevac();
+      await loadMarchPaws();
+      await loadMedevac();
       loadMuayThai();
       loadAudioList();
       initMedevac();
@@ -584,22 +654,59 @@
       initAudio();
       initGlossary();
       renderDailyDeckLog();
+      renderTermOfTheDay();
+      requestAnimationFrame(() => { renderTermOfTheDay(); });
     }
 
     function initTabs() {
-      const tabs = document.querySelectorAll('.tab-btn');
+      const pinBtn = document.getElementById('fmf-pin-btn');
+      const dropdown = document.getElementById('fmf-dropdown');
       const contents = document.querySelectorAll('.tab-content');
-      tabs.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.dataset.tab;
-          tabs.forEach(b => b.classList.remove('active'));
-          contents.forEach(c => { c.classList.remove('active'); c.classList.add('hidden'); });
-          btn.classList.add('active');
-          const panel = document.getElementById('tab-' + id);
-          if (panel) { panel.classList.remove('hidden'); panel.classList.add('active'); }
-          if (id === 'home' && typeof renderTermOfTheDay === 'function') renderTermOfTheDay();
-          if (id === 'glossary' && typeof renderGlossary === 'function') renderGlossary();
+
+      function switchToTab(id) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.querySelector('.tab-btn[data-tab="' + id + '"]');
+        if (btn) btn.classList.add('active');
+        contents.forEach(c => { c.classList.remove('active'); c.classList.add('hidden'); });
+        const panel = document.getElementById('tab-' + id);
+        if (panel) { panel.classList.remove('hidden'); panel.classList.add('active'); }
+        if (id === 'home' && typeof renderTermOfTheDay === 'function') renderTermOfTheDay();
+        if (id === 'glossary' && typeof renderGlossary === 'function') renderGlossary();
+      }
+
+      function closeMenu() {
+        if (pinBtn) pinBtn.classList.remove('menu-open');
+        if (pinBtn) pinBtn.setAttribute('aria-expanded', 'false');
+        if (dropdown) dropdown.classList.remove('open');
+      }
+
+      function openMenu() {
+        if (pinBtn) pinBtn.classList.add('menu-open');
+        if (pinBtn) pinBtn.setAttribute('aria-expanded', 'true');
+        if (dropdown) dropdown.classList.add('open');
+      }
+
+      if (pinBtn && dropdown) {
+        pinBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isOpen = dropdown.classList.contains('open');
+          if (isOpen) closeMenu(); else openMenu();
         });
+      }
+
+      if (dropdown) {
+        dropdown.addEventListener('click', (e) => {
+          const btn = e.target && e.target.closest('.tab-btn');
+          if (!btn || !btn.dataset.tab) return;
+          switchToTab(btn.dataset.tab);
+          closeMenu();
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        if (!dropdown || !dropdown.classList.contains('open')) return;
+        if (dropdown.contains(e.target) || (pinBtn && (e.target === pinBtn || pinBtn.contains(e.target)))) return;
+        closeMenu();
       });
     }
 
@@ -1009,6 +1116,14 @@
       if (radioWrap) radioWrap.classList.remove('hidden');
     });
     document.getElementById('medevac-scenario').addEventListener('click', loadMedevacScenario);
+
+    function resetMedevacScenario() {
+      setMedevacPayload({ lines: ['', '', '', 'A', '', '', 'A', 'A', ''] });
+      document.getElementById('medevac-summary').classList.add('hidden');
+      document.getElementById('medevac-radio-wrap').classList.add('hidden');
+      document.getElementById('medevac-copy').classList.add('hidden');
+    }
+    document.getElementById('medevac-reset').addEventListener('click', resetMedevacScenario);
 
     document.getElementById('medevac-copy').addEventListener('click', () => {
       const t = document.getElementById('medevac-copy').dataset.copy;
@@ -1488,12 +1603,12 @@
     // ——— Glossary: searchable, categorized database ———
     const GLOSSARY_CATEGORIES = { naval_tradition: 'Naval Tradition', marine_fmf: 'Marine Corps FMF', medical_tccc: 'Medical/TCCC', base_life_jbsa: 'Base Life (JBSA)' };
     const glossaryDB = [
-      { term: 'Head', definition: 'Naval term for bathroom or latrine.', category: 'naval_tradition' },
+      { term: 'Head', pair: 'Latrine', definition: 'Naval term for bathroom. Marines say latrine.', category: 'naval_tradition' },
       { term: 'Scuttlebutt', definition: 'Shipboard drinking fountain; also means rumor or gossip.', category: 'naval_tradition' },
-      { term: 'Bulkhead', definition: 'Navy term for wall or partition.', category: 'naval_tradition' },
-      { term: 'Deck', definition: 'Navy term for floor.', category: 'naval_tradition' },
-      { term: 'Ladder', definition: 'Navy term for stairs.', category: 'naval_tradition' },
-      { term: 'Rack', definition: 'Navy term for bed or bunk.', category: 'naval_tradition' },
+      { term: 'Bulkhead', pair: 'Wall', definition: 'Navy term for wall or partition.', category: 'naval_tradition' },
+      { term: 'Deck', pair: 'Floor', definition: 'Navy term for floor.', category: 'naval_tradition' },
+      { term: 'Ladder', pair: 'Stairs', definition: 'Navy term for stairs.', category: 'naval_tradition' },
+      { term: 'Rack', pair: 'Bunk / Bed', definition: 'Navy term for bed or bunk.', category: 'naval_tradition' },
       { term: 'Geedunk', definition: 'Shipboard snack bar or candy; also junk food.', category: 'naval_tradition' },
       { term: 'FMF', definition: 'Fleet Marine Force; Navy/Marine operational force.', category: 'marine_fmf' },
       { term: 'HM', definition: 'Hospital Corpsman; Navy medical technician. Greenside = with Marines.', category: 'marine_fmf' },
@@ -1676,6 +1791,7 @@
       }
       if (loadingEl) loadingEl.classList.add('hidden');
     }
+    document.getElementById('daily-deck-log-retry')?.addEventListener('click', () => renderDailyDeckLog());
 
     let glossaryCategory = 'all';
 
@@ -1686,13 +1802,16 @@
       const q = (searchInput && searchInput.value) ? searchInput.value.trim() : '';
       let filtered = glossaryDB.filter(e => {
         if (glossaryCategory !== 'all' && e.category !== glossaryCategory) return false;
-        return fuzzyMatch(e.term + ' ' + e.definition + (e.notes || ''), q);
+        const searchText = e.term + ' ' + (e.pair || '') + ' ' + e.definition + (e.notes || '');
+        return fuzzyMatch(searchText, q);
       });
       if (listEl) {
         listEl.innerHTML = '';
         filtered.forEach(entry => {
           const li = document.createElement('li');
           li.className = 'rounded-lg bg-slate-900/80 border border-slate-800 overflow-hidden';
+          let pairHtml = '';
+          if (entry.pair) pairHtml = '<p class="text-orange-500/90 text-xs mt-0.5">Navy: ' + escapeHtml(entry.term) + ' ↔ Marine: ' + escapeHtml(entry.pair) + '</p>';
           let notesHtml = '';
           if (entry.notes) {
             notesHtml = '<div class="mt-3 pt-3 border-t border-slate-700"><p class="text-xs font-semibold text-orange-500/90 uppercase tracking-wider mb-1">Notes</p><p class="text-slate-400 text-xs leading-relaxed">' + escapeHtml(entry.notes) + '</p></div>';
@@ -1701,6 +1820,7 @@
             '<div class="p-3">' +
               '<span class="font-semibold text-orange-500 text-sm">' + escapeHtml(entry.term) + '</span>' +
               '<span class="text-slate-500 text-xs ml-2">' + escapeHtml(GLOSSARY_CATEGORIES[entry.category] || entry.category) + '</span>' +
+              (pairHtml || '') +
               '<p class="text-slate-400 text-sm mt-1">' + escapeHtml(entry.definition) + '</p>' +
               notesHtml +
             '</div>';
