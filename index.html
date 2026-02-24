@@ -32,37 +32,49 @@
     .flip-card-front { background: linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%); border: 1px solid rgb(51,65,85); }
     .flip-card-back { background: linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.95) 100%); border: 1px solid rgb(249,115,22); transform: rotateY(180deg); }
     .glossary-cat-btn.active { color: rgb(249,115,22); border-color: rgb(249,115,22); background: rgba(249,115,22,0.1); }
-    /* FMF-style pin and dropdown */
+    /* FMF-style pin and dropdown — morph from pin into menu */
     .fmf-pin {
-      width: 48px; height: 48px;
+      width: 52px; height: 52px;
       border-radius: 50%;
       background: linear-gradient(145deg, #1e293b 0%, #0f172a 50%, #1e293b 100%);
       border: 2px solid rgba(249,115,22,0.5);
       box-shadow: 0 2px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+      overflow: hidden;
+      padding: 4px;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, border-color 0.3s ease;
     }
-    .fmf-pin:hover { transform: scale(1.06); box-shadow: 0 4px 16px rgba(249,115,22,0.2); }
+    .fmf-pin img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .fmf-pin:hover { transform: scale(1.08); box-shadow: 0 4px 20px rgba(249,115,22,0.25); }
+    .fmf-pin:hover img { transform: scale(1.05); }
     .fmf-pin.menu-open {
-      transform: scale(1.1);
+      transform: scale(1.18) translateY(-3px);
       border-color: rgb(249,115,22);
-      box-shadow: 0 4px 20px rgba(249,115,22,0.3);
+      border-width: 3px;
+      box-shadow: 0 8px 28px rgba(249,115,22,0.4), 0 2px 8px rgba(0,0,0,0.3);
     }
+    .fmf-pin.menu-open img { transform: scale(1.08); }
     .fmf-dropdown {
-      position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(6px);
+      position: absolute; top: 100%; left: 50%;
+      transform: translateX(-50%) translateY(4px) scaleY(0.3);
+      transform-origin: top center;
       min-width: 200px;
       background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-      border: 1px solid rgba(249,115,22,0.3);
+      border: 1px solid rgba(249,115,22,0.35);
       border-radius: 12px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
-      opacity: 0; visibility: hidden; transform: translateX(-50%) translateY(0) scale(0.96);
-      transition: opacity 0.2s ease, visibility 0.2s, transform 0.2s ease;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(249,115,22,0.1);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease 0.05s, visibility 0.25s, transform 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
       z-index: 30;
       overflow: hidden;
     }
     .fmf-dropdown.open {
-      opacity: 1; visibility: visible;
-      transform: translateX(-50%) translateY(6px) scale(1);
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(8px) scaleY(1);
+      transition: opacity 0.2s ease, visibility 0.2s, transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
     }
     .fmf-dropdown .menu-item {
       display: block; width: 100%;
@@ -70,9 +82,23 @@
       text-align: left; font-size: 0.875rem;
       color: rgb(203,213,225);
       border: none; background: transparent;
-      cursor: pointer; transition: background 0.15s, color 0.15s;
+      cursor: pointer;
       border-bottom: 1px solid rgba(51,65,85,0.6);
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: background 0.15s, color 0.15s, opacity 0.22s ease, transform 0.22s cubic-bezier(0.34, 1.2, 0.64, 1);
     }
+    .fmf-dropdown.open .menu-item {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fmf-dropdown.open .menu-item:nth-child(1) { transition-delay: 0.06s; }
+    .fmf-dropdown.open .menu-item:nth-child(2) { transition-delay: 0.1s; }
+    .fmf-dropdown.open .menu-item:nth-child(3) { transition-delay: 0.14s; }
+    .fmf-dropdown.open .menu-item:nth-child(4) { transition-delay: 0.18s; }
+    .fmf-dropdown.open .menu-item:nth-child(5) { transition-delay: 0.22s; }
+    .fmf-dropdown.open .menu-item:nth-child(6) { transition-delay: 0.26s; }
+    .fmf-dropdown.open .menu-item:nth-child(7) { transition-delay: 0.3s; }
     .fmf-dropdown .menu-item:last-child { border-bottom: none; }
     .fmf-dropdown .menu-item:hover { background: rgba(249,115,22,0.12); color: rgb(249,115,22); }
     .fmf-dropdown .menu-item.active { background: rgba(249,115,22,0.15); color: rgb(249,115,22); font-weight: 600; }
@@ -165,18 +191,14 @@
         </div>
         <div class="relative flex-shrink-0" aria-label="Open menu">
           <button type="button" id="fmf-pin-btn" class="fmf-pin" aria-expanded="false" aria-haspopup="true" aria-label="Menu">
-            <svg class="w-7 h-7 text-orange-500/95" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="10" r="4"/>
-              <path d="M12 14v6M10 20h4"/>
-              <circle cx="12" cy="12" r="9"/>
-            </svg>
+            <img src="assets/fmf-pin.png" alt="" width="44" height="44" />
           </button>
           <div id="fmf-dropdown" class="fmf-dropdown" role="menu" aria-orientation="vertical">
             <button type="button" class="menu-item tab-btn active" role="menuitem" data-tab="home">Home</button>
             <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="march">MARCH-PAWS</button>
             <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="medevac">9-Line Medevac</button>
             <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="radiostress" title="Timed 9-Line drill">Radio Stress</button>
-            <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="muaythai">Muay Thai</button>
+            <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="muaythai">Striker's Log</button>
             <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="audio">Voice Memos</button>
             <button type="button" class="menu-item tab-btn" role="menuitem" data-tab="glossary">Glossary</button>
           </div>
@@ -194,10 +216,10 @@
         <!-- Home (landing) -->
         <section id="tab-home" class="tab-content active" aria-labelledby="home-label">
           <h2 id="home-label" class="sr-only">Home</h2>
-          <p class="text-xl font-semibold text-orange-500 mb-5 tracking-tight">Welcome back.</p>
+          <p id="welcome-text" class="text-xl font-semibold text-orange-500 mb-5 tracking-tight">Welcome back, Jocelyn.</p>
           <div class="mb-5 p-4 rounded-xl bg-slate-800/60 border border-slate-700/80">
             <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
-            <p class="text-slate-400 text-xs leading-relaxed">Your training hub: drill MARCH-PAWS, practice 9-Line, log Muay Thai, record voice memos, and look up Navy/Marine terms. Use the tabs above to jump to each section.</p>
+            <p class="text-slate-400 text-xs leading-relaxed">Your training hub: drill MARCH-PAWS, practice 9-Line, log training days (Striker's Log), record voice memos, and look up Navy/Marine terms. Use the menu above to jump to each section.</p>
           </div>
           <div id="term-of-the-day-card" class="mb-5 p-4 rounded-xl bg-slate-900/70 border border-orange-500/30">
             <p class="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-1">Term of the Day</p>
@@ -359,12 +381,12 @@
           </div>
         </section>
 
-        <!-- Muay Thai streak -->
+        <!-- Striker's Log (training streak) -->
         <section id="tab-muaythai" class="tab-content" aria-labelledby="muaythai-label">
-          <h2 id="muaythai-label" class="sr-only">Muay Thai streak</h2>
+          <h2 id="muaythai-label" class="sr-only">Striker's Log</h2>
           <div class="mb-4 p-3 rounded-lg bg-slate-800/80 border border-slate-700">
             <p class="text-orange-500 font-medium text-sm mb-1">What is this?</p>
-            <p class="text-slate-400 text-xs leading-relaxed">Log each day you train to keep your streak. One tap per day—keeps you honest and motivated.</p>
+            <p class="text-slate-400 text-xs leading-relaxed">Striker's Log: log each day you train to keep your streak. One tap per day—keeps you honest and motivated.</p>
           </div>
           <div class="p-4 rounded-lg bg-slate-900/80 border border-slate-800 text-center mb-4">
             <p class="text-slate-400 text-sm">Current streak</p>
@@ -425,6 +447,9 @@
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    // App structure: Auth → Dashboard (tabs, user_data) → MARCH-PAWS → 9-Line Medevac → Radio Stress
+    // → Striker's Log → Audio → Striker's Guide → Glossary → Daily Deck Log / Term of the Day
 
     const SUPABASE_URL = window.SUPABASE_URL || '';
     const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || '';
@@ -603,7 +628,7 @@
         hideResetPasswordScreen();
         authScreen.classList.add('hidden');
         dashboard.classList.remove('hidden');
-        initDashboard(session.user.id);
+        initDashboard(session.user);
       } else {
         if (isResetPasswordRoute()) {
           showResetPasswordScreen(true);
@@ -630,8 +655,10 @@
     // ——— Dashboard (only after auth) ———
     let userId = null;
 
-    const MEDICAL_BASE_STATE = { march_paws: {}, medevac: { lines: ['', '', '', 'A', '', '', 'A', 'A', ''] } };
+    const MEDEVAC_BASE_LINES = ['', '', '', 'A', '', '', 'A', 'A', ''];
+    const MEDICAL_BASE_STATE = { march_paws: {}, medevac: { lines: MEDEVAC_BASE_LINES } };
 
+    /** On each login, reset medical (MARCH + 9-Line) to base state in Supabase. */
     async function resetUserToBaseState() {
       if (!userId) return;
       try {
@@ -639,13 +666,19 @@
       } catch (_) {}
     }
 
-    async function initDashboard(uid) {
-      userId = uid;
+    /** Startup: set user, welcome, fire Daily Deck Log load, reset medical in DB, then inits and load data. 9-Line form is forced to base state after load. */
+    async function initDashboard(user) {
+      userId = user?.id || user;
+      const displayName = (user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email && user.email.split('@')[0])) || 'Jocelyn';
+      const welcomeEl = document.getElementById('welcome-text');
+      if (welcomeEl) welcomeEl.textContent = 'Welcome back, ' + displayName + '.';
+      renderDailyDeckLog();
       await resetUserToBaseState();
       initTabs();
       initMarchPaws();
       await loadMarchPaws();
       await loadMedevac();
+      if (typeof applyMedevacBaseState === 'function') applyMedevacBaseState();
       loadMuayThai();
       loadAudioList();
       initMedevac();
@@ -653,7 +686,6 @@
       initRadioStress();
       initAudio();
       initGlossary();
-      renderDailyDeckLog();
       renderTermOfTheDay();
       requestAnimationFrame(() => { renderTermOfTheDay(); });
     }
@@ -1040,6 +1072,7 @@
     }
 
     // ——— 9-Line Medevac ↔ user_data (medical) ———
+    // Base state: empty lines; Line 4/7/8 = A. applyMedevacBaseState() sets form directly; used by Reset and on login.
     const MEDEVAC_LINE4_LEGACY = { 'None': 'A', 'Hoist': 'B', 'Extraction equipment': 'C', 'Ventilator': 'D' };
     const MEDEVAC_LINE7_LEGACY = { 'Panels': 'A', 'Pyrotechnic': 'B', 'Smoke': 'C', 'None': 'D', 'Other': 'E' };
     const MEDEVAC_LINE8_LEGACY = { 'US military': 'A', 'US civilian': 'B', 'Non-US military': 'C', 'Non-US civilian': 'D', 'EPW': 'E' };
@@ -1096,9 +1129,17 @@
       });
     }
 
+    function applyMedevacBaseState() {
+      MEDEVAC_BASE_LINES.forEach((val, i) => {
+        const el = document.getElementById('line' + (i + 1));
+        if (el) el.value = val;
+      });
+    }
+
     async function loadMedevac() {
       const content = await getUserData('medical');
-      setMedevacPayload(content.medevac);
+      const medevac = content?.medevac?.lines?.length === 9 ? content.medevac : { lines: MEDEVAC_BASE_LINES };
+      setMedevacPayload(medevac);
     }
 
     document.getElementById('medevac-generate').addEventListener('click', () => {
@@ -1118,12 +1159,12 @@
     document.getElementById('medevac-scenario').addEventListener('click', loadMedevacScenario);
 
     function resetMedevacScenario() {
-      setMedevacPayload({ lines: ['', '', '', 'A', '', '', 'A', 'A', ''] });
-      document.getElementById('medevac-summary').classList.add('hidden');
-      document.getElementById('medevac-radio-wrap').classList.add('hidden');
-      document.getElementById('medevac-copy').classList.add('hidden');
+      applyMedevacBaseState();
+      document.getElementById('medevac-summary')?.classList.add('hidden');
+      document.getElementById('medevac-radio-wrap')?.classList.add('hidden');
+      document.getElementById('medevac-copy')?.classList.add('hidden');
     }
-    document.getElementById('medevac-reset').addEventListener('click', resetMedevacScenario);
+    document.getElementById('medevac-reset')?.addEventListener('click', resetMedevacScenario);
 
     document.getElementById('medevac-copy').addEventListener('click', () => {
       const t = document.getElementById('medevac-copy').dataset.copy;
@@ -1376,7 +1417,7 @@
       refreshRadioStressPersonalBest();
     }
 
-    // ——— Muay Thai ↔ user_data (muay-thai) ———
+    // ——— Striker's Log ↔ user_data (muay-thai) ———
     function todayStr() { const d = new Date(); return d.toISOString().slice(0, 10); }
     function isYesterday(dateStr) {
       const d = new Date(dateStr); d.setDate(d.getDate() + 1);
@@ -1403,7 +1444,7 @@
       if (!err) { document.getElementById('muaythai-streak').textContent = newStreak; document.getElementById('muaythai-last').textContent = 'Last drill: ' + today; }
     });
 
-    function initMuayThai() {}
+    function initMuayThai() { /* Striker's Log: listeners attached inline above */ }
 
     // ——— Audio: upload to jocelyn-audio, save URL in user_data (vocal) ———
     const audioStatus = document.getElementById('audio-status');
@@ -1552,9 +1593,9 @@
       document.getElementById('audio-stop').disabled = true;
     });
 
-    function initAudio() {}
+    function initAudio() { /* listeners attached inline in loadAudioList / DOM */ }
 
-    // ——— The Striker's Guide to Medicine (Muay Thai → medical flip cards) ———
+    // ——— The Striker's Guide to Medicine (Striker's Log → medical flip cards) ———
     const strikersGuide = [
       { front: 'Guard up', back: 'Protect the airway first. Like keeping your hands up, maintain C-spine and a patent airway—nothing matters if they can’t breathe.' },
       { front: 'Checking the kick', back: 'Hemorrhage control. Stop the bleed before it stops the fight. Tourniquet high and tight; pack and pressure when you can. M in MARCH.' },
